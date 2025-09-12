@@ -1,14 +1,10 @@
 # Poge Postgres Workbench
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Website: Poge](https://img.shields.io/badge/Website-Poge-blue?logo=google-chrome&logoColor=white)](https://poge.dev)
 
-Poge is a fast and friendly database workbench for PostgreSQL, and the moments when you just need to peek at tables, run a couple of queries, and move on. Open a tab, connect, and get results quickly — no heavy tooling required.
+Poge is a fast and friendly database workbench for PostgreSQL, and the moments when you just need to peek at tables, run a couple of queries, and move on. Open a tab, connect, and get results quickly — no heavy tooling required. You can try demo on https://poge.dev.
 
-## Links
 <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fthe-not-boring%2Fpoge-pg&project-name=poge-pg&repository-name=poge-pg"><img src="https://vercel.com/button" alt="Deploy to vercel" height="32" /></a>
-<a href="https://poge.dev" style="margin-left:8px;"><img src="https://img.shields.io/badge/Website-Poge-blue?logo=google-chrome&logoColor=white" alt="Poge website" height="32" /></a>
- 
-- Issues: report here → https://github.com/the-not-boring/poge-pg/issues
 
 ## What you get
 - Simple, speedy UI for tables and SQL
@@ -58,7 +54,7 @@ Poge includes built‑in export/import:
 If you discover a security issue, please open a private report or contact the maintainers.
 
 ## Contributing
-Pull requests are welcome. Keep changes small and focused, and prefer clear, straightforward code over cleverness. If you’re unsure, open an issue first and we’ll figure it out together.
+Pull requests are welcome. Keep changes small and focused, and prefer clear, straightforward code over cleverness. If you’re unsure or want to report a bug/feature, please open an issue here: https://github.com/the-not-boring/poge-pg/issues
 
 ## Roadmap (short and sweet)
 - Smoother table editing flows
