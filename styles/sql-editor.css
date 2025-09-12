@@ -1,0 +1,186 @@
+/* SQL Editor Custom Styles */
+.sql-editor {
+  position: relative;
+}
+
+.sql-editor pre {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.sql-editor textarea {
+  background: transparent !important;
+  color: transparent !important;
+  caret-color: hsl(var(--foreground)) !important;
+}
+
+/* Ensure highlight.js styles are properly applied */
+.sql-editor .hljs {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+/* Dark theme adjustments - reduced specificity */
+.dark .sql-editor .hljs {
+  background: transparent !important;
+}
+
+/* SQL Keywords - ensure all SQL keywords are highlighted */
+.dark .sql-editor .hljs-keyword,
+.dark .sql-editor .hljs-built_in,
+.dark .sql-editor .hljs-selector-tag,
+.dark .sql-editor .hljs-literal,
+.dark .sql-editor .hljs-type,
+.dark .sql-editor .hljs-addition {
+  color: #ff79c6 !important;
+  font-weight: 600 !important;
+}
+
+/* Force keyword highlighting with higher specificity */
+.dark .sql-editor pre .hljs-keyword,
+.dark .sql-editor pre .hljs-built_in,
+.dark .sql-editor pre .hljs-selector-tag,
+.dark .sql-editor pre .hljs-literal,
+.dark .sql-editor pre .hljs-type,
+.dark .sql-editor pre .hljs-addition {
+  color: #ff79c6 !important;
+  font-weight: 600 !important;
+}
+
+.dark .sql-editor .hljs-string {
+  color: #f1fa8c !important;
+}
+
+.dark .sql-editor .hljs-number {
+  color: #bd93f9 !important;
+}
+
+.dark .sql-editor .hljs-comment {
+  color: #6272a4 !important;
+  font-style: italic !important;
+}
+
+/* Force string, number, and comment highlighting with higher specificity */
+.dark .sql-editor pre .hljs-string {
+  color: #f1fa8c !important;
+}
+
+.dark .sql-editor pre .hljs-number {
+  color: #bd93f9 !important;
+}
+
+.dark .sql-editor pre .hljs-comment {
+  color: #6272a4 !important;
+  font-style: italic !important;
+}
+
+.dark .sql-editor .hljs-function,
+.dark .sql-editor .hljs-title {
+  color: #50fa7b !important;
+}
+
+.dark .sql-editor .hljs-operator {
+  color: #ff79c6 !important;
+}
+
+.dark .sql-editor .hljs-variable,
+.dark .sql-editor .hljs-name {
+  color: #f8f8f2 !important;
+}
+
+.dark .sql-editor .hljs-punctuation {
+  color: #f8f8f2 !important;
+}
+
+/* Light theme adjustments - reduced specificity */
+.light .sql-editor .hljs {
+  background: transparent !important;
+}
+
+/* SQL Keywords - ensure all SQL keywords are highlighted */
+.light .sql-editor .hljs-keyword,
+.light .sql-editor .hljs-built_in,
+.light .sql-editor .hljs-selector-tag,
+.light .sql-editor .hljs-literal,
+.light .sql-editor .hljs-type,
+.light .sql-editor .hljs-addition {
+  color: #d73a49 !important;
+  font-weight: 600 !important;
+}
+
+.light .sql-editor .hljs-string {
+  color: #032f62 !important;
+}
+
+.light .sql-editor .hljs-number {
+  color: #005cc5 !important;
+}
+
+.light .sql-editor .hljs-comment {
+  color: #6a737d !important;
+  font-style: italic !important;
+}
+
+.light .sql-editor .hljs-function,
+.light .sql-editor .hljs-title {
+  color: #6f42c1 !important;
+}
+
+.light .sql-editor .hljs-operator {
+  color: #d73a49 !important;
+}
+
+.light .sql-editor .hljs-variable,
+.light .sql-editor .hljs-name {
+  color: #24292e !important;
+}
+
+.light .sql-editor .hljs-punctuation {
+  color: #24292e !important;
+}
+
+/* Additional SQL-specific highlighting */
+.sql-editor .hljs-keyword {
+  font-weight: 600 !important;
+}
+
+.sql-editor .hljs-comment {
+  font-style: italic !important;
+}
+
+/* Global highlight.js fallback styles to ensure visibility */
+.hljs-keyword {
+  color: #ff79c6 !important;
+  font-weight: 600 !important;
+}
+
+.hljs-string {
+  color: #f1fa8c !important;
+}
+
+.hljs-number {
+  color: #bd93f9 !important;
+}
+
+.hljs-comment {
+  color: #6272a4 !important;
+  font-style: italic !important;
+}
+
+.hljs-function,
+.hljs-title {
+  color: #50fa7b !important;
+}
+
+.hljs-operator {
+  color: #ff79c6 !important;
+}
+
+.hljs-variable,
+.hljs-name {
+  color: #f8f8f2 !important;
+}
+
+.hljs-punctuation {
+  color: #f8f8f2 !important;
+} 
