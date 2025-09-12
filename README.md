@@ -1,5 +1,8 @@
 # Poge
 
+[![Deploy to vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fthe-not-boring%2Fpoge-pg&project-name=poge-pg&repository-name=poge-pg)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new?template=https%3A%2F%2Fgithub.com%2Fthe-not-boring%2Fpoge-pg)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Poge is a fast and friendly database workbench for PostgreSQL, and the moments when you just need to peek at tables, run a couple of queries, and move on. Open a tab, connect, and get results quickly — no heavy tooling required.
@@ -14,9 +17,6 @@ Poge is a fast and friendly database workbench for PostgreSQL, and the moments w
 - Table/Schema viewers with sane defaults
 - Local‑first by default: data lives on your machine
 - Optional PIN lock so you can step away without worry
-
-## One‑click deploy
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fthe-not-boring%2Fpoge-pg&project-name=poge-pg&repository-name=poge-pg)
 
 ## Quick start on your machine
 
