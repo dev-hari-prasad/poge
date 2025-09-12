@@ -1,15 +1,14 @@
-# Poge
-
-[![Deploy to vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fthe-not-boring%2Fpoge-pg&project-name=poge-pg&repository-name=poge-pg)
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new?template=https%3A%2F%2Fgithub.com%2Fthe-not-boring%2Fpoge-pg)
+# Poge Postgres Workbench
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Poge is a fast and friendly database workbench for PostgreSQL, and the moments when you just need to peek at tables, run a couple of queries, and move on. Open a tab, connect, and get results quickly — no heavy tooling required.
 
 ## Links
-- Website: https://poge.dev
-- Issues: please include steps to reproduce
+<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fthe-not-boring%2Fpoge-pg&project-name=poge-pg&repository-name=poge-pg"><img src="https://vercel.com/button" alt="Deploy to vercel" height="32" /></a>
+<a href="https://poge.dev" style="margin-left:8px;"><img src="https://img.shields.io/badge/Website-Poge-blue?logo=google-chrome&logoColor=white" alt="Poge website" height="32" /></a>
+ 
+- Issues: report here → https://github.com/the-not-boring/poge-pg/issues
 
 ## What you get
 - Simple, speedy UI for tables and SQL
@@ -68,3 +67,7 @@ Pull requests are welcome. Keep changes small and focused, and prefer clear, str
 
 ## License
 MIT — do what you like, be kind, and don’t remove credit.
+
+---
+
+<p align="center"><sub>Built by Engineers at <a href="http://notboring.in/">Not Boring</a></sub></p>
