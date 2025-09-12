@@ -1,4 +1,4 @@
-# Poge Postgres Workbench
+# Poge PG: pgAdmin but in your browser 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Website: Poge](https://img.shields.io/badge/Website-Poge-blue?logo=google-chrome&logoColor=white)](https://poge.dev)
 
