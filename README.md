@@ -29,7 +29,7 @@ yarn
 
 ### 2) Run it
 ```bash
-pnpm dev
+pnpm run dev (or npm run dev)
 # then open http://localhost:3000
 ```
 
