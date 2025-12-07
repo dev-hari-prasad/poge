@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
@@ -54,7 +55,7 @@
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "motion": "^12.23.12",
-    "next": "15.2.4",
+    "next": "16.0.7",
     "next-themes": "^0.4.4",
     "pg": "^8.16.3",
     "react": "^19",

@@ -12,9 +12,9 @@ const config: Config = {
   prefix: "",
   theme: {
     fontFamily: {
-      sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+      sans: ['Manrope', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       mono: ['JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Consolas', 'Courier New', 'monospace'],
-      serif: ['Libre Baskerville', 'Georgia', 'Times New Roman', 'serif'],
+      serif: ['JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Consolas', 'Courier New', 'monospace'],
     },
     container: {
       center: true,

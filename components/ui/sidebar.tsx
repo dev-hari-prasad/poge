@@ -21,8 +21,8 @@ import {
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
+const SIDEBAR_WIDTH = "14rem"
+const SIDEBAR_WIDTH_MOBILE = "16rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
@@ -278,7 +278,7 @@ const SidebarTrigger = React.forwardRef<
       }}
       {...props}
     >
-      {state === "collapsed" ? <PanelLeft /> : <PanelLeftClose />}
+      {state === "collapsed" ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )

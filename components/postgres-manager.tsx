@@ -5,7 +5,6 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { ServerManagement } from "@/components/server-management"
 import { TableViewer } from "@/components/table-viewer"
 import { QueryTool } from "@/components/query-tool"
-import { SchemaManager } from "@/components/schema-manager"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { useSecurity } from "@/contexts/security-context"
 import { Settings } from "@/components/settings"
@@ -15,7 +14,7 @@ import { TableSelectionProvider } from "@/contexts/table-selection-context"
 // Integrations and Governance removed
 import { usePageTitle } from "@/hooks/use-page-title"
 
-export type ViewMode = "servers" | "table-viewer" | "query-tool" | "schema-manager" | "notes" | "settings"
+export type ViewMode = "servers" | "table-viewer" | "query-tool" | "notes" | "settings"
 
 interface PostgresManagerProps {
   initialView?: ViewMode
@@ -53,8 +52,6 @@ export function PostgresManager({ initialView = "servers", settingsInitialTab = 
         return "Table Viewer"
       case "query-tool":
         return "Query Tool"
-      case "schema-manager":
-        return "Schema Manager"
       case "notes":
         return "Notes"
       case "settings":
@@ -74,8 +71,6 @@ export function PostgresManager({ initialView = "servers", settingsInitialTab = 
         return <TableViewer />
       case "query-tool":
         return <QueryTool />
-      case "schema-manager":
-        return <SchemaManager />
       case "notes":
         return <Notes />
       case "settings":

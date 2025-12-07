@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { Play, Save, FolderOpen, History, Database, Loader2, Pause, Square, Zap, Trash2, Activity, MoreVertical, Lock, Unlock, Edit, Plus, LayoutGrid, Columns, Download, RefreshCw, Maximize2, XCircle, CheckCircle } from "lucide-react"
+import { PlayIcon, BookmarkIcon, FolderOpenIcon, ClockIcon, CircleStackIcon, ArrowPathIcon, PauseIcon, StopIcon, BoltIcon, TrashIcon, ChartBarIcon, EllipsisVerticalIcon, LockClosedIcon, LockOpenIcon, PencilIcon, PlusIcon, Squares2X2Icon, ViewColumnsIcon, ArrowDownTrayIcon, ArrowsPointingOutIcon, XCircleIcon, CheckCircleIcon } from "@heroicons/react/24/outline"
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
@@ -487,9 +487,9 @@ export function QueryTool() {
   // Helper functions for expanded view
   const getResultIcon = (type: string) => {
     switch (type) {
-      case "select": return <Database className="h-4 w-4" />
-      case "error": return <XCircle className="h-4 w-4 text-red-600" />
-      default: return <CheckCircle className="h-4 w-4 text-green-600" />
+      case "select": return <CircleStackIcon className="h-4 w-4" />
+      case "error": return <XCircleIcon className="h-4 w-4 text-red-600" />
+      default: return <CheckCircleIcon className="h-4 w-4 text-green-600" />
     }
   }
 
@@ -518,7 +518,7 @@ export function QueryTool() {
           <div className="flex items-center gap-2">
             {sessionLocked && (
               <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
-                <Lock className="h-3 w-3 text-blue-600" />
+                <LockClosedIcon className="h-3 w-3 text-blue-600" />
                 <span className="text-xs text-blue-600 font-medium">Session Locked</span>
               </div>
             )}
@@ -539,7 +539,7 @@ export function QueryTool() {
                     disabled={connectedServers.length === 0 || !selectedServer} 
                     className="bg-green-600 hover:bg-green-700"
                   >
-                    <Play className="h-4 w-4" />
+                    <PlayIcon className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -564,7 +564,7 @@ export function QueryTool() {
                       })
                     }}
                   >
-                    <Pause className="h-4 w-4" />
+                    <PauseIcon className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -587,7 +587,7 @@ export function QueryTool() {
                       cancelQuery()
                     }}
                   >
-                    <Square className="h-4 w-4" />
+                    <StopIcon className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -600,7 +600,7 @@ export function QueryTool() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button size="icon" variant="outline" onClick={executeSelectedText} disabled={!hasTextSelection || connectedServers.length === 0 || !selectedServer}>
-                    <Zap className="h-4 w-4" />
+                    <BoltIcon className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -620,7 +620,7 @@ export function QueryTool() {
               }}>
                 <SelectTrigger className="w-48">
                   <div className="flex items-center gap-2">
-                    <Database className="h-4 w-4" />
+                    <CircleStackIcon className="h-4 w-4" />
                     <SelectValue placeholder="Select server" />
                   </div>
                 </SelectTrigger>
@@ -652,7 +652,7 @@ export function QueryTool() {
                   disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                   className={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select") ? "opacity-50" : ""}
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <ArrowPathIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -676,7 +676,7 @@ export function QueryTool() {
                   disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                   className={currentTabResults.length > 0 && currentTabResults[0]?.type === "select" ? "" : "opacity-50"}
                 >
-                  <Maximize2 className="h-4 w-4" />
+                  <ArrowsPointingOutIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -699,7 +699,7 @@ export function QueryTool() {
                       disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                       className={currentTabResults.length > 0 && currentTabResults[0]?.type === "select" ? "" : "opacity-50"}
                     >
-                      <Plus className="h-4 w-4" />
+                      <PlusIcon className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40">
@@ -707,14 +707,14 @@ export function QueryTool() {
                       onClick={() => toast({ title: 'Add Row', description: 'Open row dialog from query tool' })}
                       disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      <PlusIcon className="h-4 w-4 mr-2" />
                       Add Row
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => toast({ title: 'Add Column', description: 'Open column dialog from query tool' })}
                       disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                     >
-                      <Columns className="h-4 w-4 mr-2" />
+                      <ViewColumnsIcon className="h-4 w-4 mr-2" />
                       Add Column
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -735,7 +735,7 @@ export function QueryTool() {
                   disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                   className={currentTabResults.length > 0 && currentTabResults[0]?.type === "select" ? "text-blue-600 border-blue-600/40 hover:text-blue-700 hover:border-blue-700/50" : "opacity-50"}
                 >
-                  <Edit className="h-4 w-4" />
+                  <PencilIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -753,7 +753,7 @@ export function QueryTool() {
                   disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                   className={currentTabResults.length > 0 && currentTabResults[0]?.type === "select" ? "text-red-600 border-red-600/40 hover:text-red-700 hover:border-red-700/50" : "opacity-50"}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <TrashIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -771,7 +771,7 @@ export function QueryTool() {
                   disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                   className={currentTabResults.length > 0 && currentTabResults[0]?.type === "select" ? "" : "opacity-50"}
                 >
-                  <Download className="h-4 w-4" />
+                  <ArrowDownTrayIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -783,12 +783,12 @@ export function QueryTool() {
           <Separator orientation="vertical" className="h-6" />
 
           <Button variant="outline" onClick={() => setShowLoadDialog(true)}>
-            <FolderOpen className="h-4 w-4 mr-1" />
+            <FolderOpenIcon className="h-4 w-4 mr-1" />
             Load
           </Button>
           
           <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
-            <Save className="h-4 w-4 mr-1" />
+            <BookmarkIcon className="h-4 w-4 mr-1" />
             Save
           </Button>
 
@@ -823,10 +823,10 @@ export function QueryTool() {
         ) : connectedServers.length === 0 ? (
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-[5] flex items-center justify-center">
             <div className="text-center">
-              <Database className="h-16 w-16 text-muted-foreground mb-4 mx-auto" />
-              <h2 className="text-xl font-semibold mb-2">No Connected Servers</h2>
-              <p className="text-muted-foreground mb-4 max-w-md">
-                Connect to a PostgreSQL server from the Servers section to start writing and executing queries.
+              <CircleStackIcon className="h-16 w-16 text-muted-foreground mb-4 mx-auto" />
+              <h2 className="text-xl font-semibold mb-2">No Connected Database</h2>
+              <p className="text-muted-foreground mb-4 max-w-sm">
+                Connect to a PostgreSQL database from the Database section to start writing and executing queries.
               </p>
             </div>
           </div>
@@ -836,7 +836,7 @@ export function QueryTool() {
           {connectedServers.length > 0 && !selectedServer && (
             <div className="bg-yellow-50 dark:bg-yellow-950/20 border-b border-yellow-200 dark:border-yellow-800 p-3">
               <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
-                <Database className="h-4 w-4" />
+                <CircleStackIcon className="h-4 w-4" />
                 <span className="text-sm font-medium">No server selected</span>
                 <span className="text-xs text-yellow-600 dark:text-yellow-400">
                   Select a server from the dropdown above to execute queries
@@ -975,7 +975,7 @@ export function QueryTool() {
                   <CardTitle className="text-red-600 text-base">Query Error</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <pre className="text-sm text-red-800 bg-red-50 p-3 rounded border whitespace-pre-wrap break-words overflow-auto max-h-[60vh]">
+                  <pre className="font-mono text-sm text-red-800 bg-red-50 p-3 rounded border whitespace-pre-wrap break-words overflow-auto max-h-[60vh]">
                     {expandedResult.result.error}
                   </pre>
                 </CardContent>
@@ -994,7 +994,7 @@ export function QueryTool() {
             <div className="flex items-center gap-2">
               {expandedResult.result?.type === "select" && handleSaveTable && (
                 <Button variant="outline" size="sm" onClick={handleSaveTable}>
-                  <Download className="h-3 w-3 mr-2" />
+                  <ArrowDownTrayIcon className="h-3 w-3 mr-2" />
                   Save as Table
                 </Button>
               )}

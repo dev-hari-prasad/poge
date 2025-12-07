@@ -1,8 +1,25 @@
 "use client"
 
-import { Database, Play, Server, Settings, TreePine, Sun, Moon, Monitor, Lock, FileText, Shapes, Shield, ChevronRight, PanelRightOpen, Plus } from "lucide-react"
+import {
+  CircleStackIcon,
+  PlayIcon,
+  ServerIcon,
+  Cog6ToothIcon,
+  SunIcon,
+  MoonIcon,
+  ComputerDesktopIcon,
+  LockClosedIcon,
+  DocumentTextIcon,
+  ShieldCheckIcon,
+  ChevronRightIcon,
+  PlusIcon,
+  TableCellsIcon,
+  CommandLineIcon,
+  FolderIcon,
+  QuestionMarkCircleIcon
+} from "@heroicons/react/24/outline"
 import Image from "next/image"
-import { HugeiconsIcon, CloudServerIcon, TableIcon, SearchList01Icon, Tree01Icon } from "hugeicons-react"
+import { useEffect, useRef, useState } from "react"
 import {
   Sidebar,
   SidebarContent,
@@ -18,7 +35,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-// Note: DatabaseTree is rendered inside Table Viewer and Schema Manager pages
+// Note: DatabaseTree is rendered inside Table Viewer page
 // keeping the sidebar lean.
 // import { DatabaseTree } from "@/components/database-tree"
 import { useServerStorage } from "@/hooks/use-server-storage"
@@ -35,35 +52,30 @@ const mainMenuItems = [
   {
     id: "servers" as ViewMode,
     title: "Databases",
-    icon: CloudServerIcon,
+    icon: ServerIcon,
   },
   {
     id: "query-tool" as ViewMode,
     title: "Query Tool",
-    icon: SearchList01Icon,
+    icon: CommandLineIcon,
   },
   {
     id: "table-viewer" as ViewMode,
     title: "Table Viewer",
-    icon: TableIcon,
-  },
-  {
-    id: "schema-manager" as ViewMode,
-    title: "Schema Manager",
-    icon: Tree01Icon,
+    icon: TableCellsIcon,
   },
   // Removed Integrations item
   {
     id: "notes" as ViewMode,
     title: "Notes",
-    icon: FileText,
+    icon: DocumentTextIcon,
   },
 ]
 
 const settingsItem = {
   id: "settings" as ViewMode,
   title: "Settings",
-  icon: Settings,
+  icon: Cog6ToothIcon,
 }
 
 export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {
@@ -77,6 +89,51 @@ export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {
   const connectedServers = servers.filter((server) => server.connected)
   const isCollapsed = state === "collapsed"
 
+  // Refs for tracking active indicator position
+  const menuItemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const [mainIndicatorStyle, setMainIndicatorStyle] = useState<{ top: number; height: number; opacity: number }>({
+    top: 0,
+    height: 0,
+    opacity: 0
+  })
+  const [settingsIndicatorStyle, setSettingsIndicatorStyle] = useState<{ top: number; height: number; opacity: number }>({
+    top: 0,
+    height: 0,
+    opacity: 0
+  })
+
+  // Update indicator position when currentView changes
+  useEffect(() => {
+    if (isCollapsed) {
+      setMainIndicatorStyle({ top: 0, height: 0, opacity: 0 })
+      setSettingsIndicatorStyle({ top: 0, height: 0, opacity: 0 })
+      return
+    }
+
+    const activeItem = menuItemRefs.current[currentView]
+    if (activeItem) {
+      const menuContainer = activeItem.closest('[data-sidebar="menu"]')
+      if (menuContainer) {
+        const containerRect = menuContainer.getBoundingClientRect()
+        const itemRect = activeItem.getBoundingClientRect()
+        const top = itemRect.top - containerRect.top
+        const height = itemRect.height
+
+        const isSettings = currentView === settingsItem.id
+        if (isSettings) {
+          setSettingsIndicatorStyle({ top, height, opacity: 1 })
+          setMainIndicatorStyle({ top: 0, height: 0, opacity: 0 })
+        } else {
+          setMainIndicatorStyle({ top, height, opacity: 1 })
+          setSettingsIndicatorStyle({ top: 0, height: 0, opacity: 0 })
+        }
+      }
+    } else {
+      setMainIndicatorStyle({ top: 0, height: 0, opacity: 0 })
+      setSettingsIndicatorStyle({ top: 0, height: 0, opacity: 0 })
+    }
+  }, [currentView, isCollapsed])
+
   // Reset session timer on any interaction
   const handleInteraction = () => {
     resetSessionTimer()
@@ -85,17 +142,17 @@ export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {
   const getThemeIcon = () => {
     switch (theme) {
       case "light":
-        return <Sun className="h-4 w-4" />
+        return <SunIcon className="h-4 w-4" />
       case "dark":
-        return <Moon className="h-4 w-4" />
+        return <MoonIcon className="h-4 w-4" />
       default:
-        return <Monitor className="h-4 w-4" />
+        return <ComputerDesktopIcon className="h-4 w-4" />
     }
   }
 
   return (
-    <Sidebar className="border-r group/sidebar" collapsible="icon" onClick={handleInteraction}>
-      <SidebarHeader className="border-b">
+    <Sidebar className="border-r border-sidebar-border group/sidebar" collapsible="icon" onClick={handleInteraction}>
+      <SidebarHeader className="border-b border-sidebar-border">
         <div className={`flex items-center justify-between ${isCollapsed ? "px-2" : "px-2"} h-[39px]`}>
           <div className="flex items-center gap-2">
             {isCollapsed ? (
@@ -106,20 +163,20 @@ export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {
               <>
                 <Image src="/Pogo Brand mark.png" alt="Pogo" width={28} height={28} className="h-7 w-7 object-contain" />
                 <div className="flex flex-col">
-                  <span className="font-semibold text-lg">Poge</span>
+                  <span className="font-semibold text-lg text-foreground">Poge</span>
                   {/* <span className="text-[12px] mb-0 text-muted-foreground">Database Administration</span> */}
                 </div>
               </>
             )}
           </div>
-          {!isCollapsed && <SidebarTrigger className="h-6 w-6 p-0" />}
+          {!isCollapsed && <SidebarTrigger className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground" />}
         </div>
-        
+
         {/* Separate expand button overlay for collapsed sidebar */}
         {isCollapsed && (
           <div className="absolute top-[8px] left-0 w-full h-[39px] flex items-center justify-center pointer-events-none group/sidebar">
-            <SidebarTrigger className="h-7 w-7 p-0 bg-background hover:bg-accent rounded flex items-center justify-center pointer-events-auto opacity-0 transition-opacity duration-200 group-hover/sidebar:opacity-100">
-              <Plus className="h-5 w-5" />
+            <SidebarTrigger className="h-7 w-7 p-0 bg-background hover:bg-accent text-muted-foreground hover:text-foreground rounded flex items-center justify-center pointer-events-auto opacity-0 transition-opacity duration-200 group-hover/sidebar:opacity-100">
+              <PlusIcon className="h-5 w-5" />
             </SidebarTrigger>
           </div>
         )}
@@ -128,25 +185,41 @@ export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {
         {/* Main Navigation */}
         <SidebarGroup className="pt-3">
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="relative">
+              {/* Animated active indicator */}
+              {!isCollapsed && (
+                <div
+                  className="absolute left-0 w-0.5 bg-primary transition-all duration-300 ease-out rounded-r z-10"
+                  style={{
+                    top: `${mainIndicatorStyle.top}px`,
+                    height: `${mainIndicatorStyle.height}px`,
+                    opacity: mainIndicatorStyle.opacity,
+                  }}
+                />
+              )}
               {mainMenuItems.map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
                     asChild
                     isActive={item.id === currentView}
-                    className={item.id === currentView ? "bg-green-50 text-green-700 hover:bg-green-100" : ""}
+                    className={item.id === currentView
+                      ? "bg-primary/10 text-primary font-bold pl-2 relative"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"}
                     tooltip={item.title}
                   >
                     <button
+                      ref={(el) => {
+                        menuItemRefs.current[item.id] = el
+                      }}
                       onClick={() => navigateToView(item.id)}
                     >
-                      <item.icon className="h-7 w-7" />
+                      <item.icon className="h-5 w-5" />
                       {!isCollapsed && (
                         <span className="flex items-center gap-1">
                           {item.title}
                         </span>
                       )}
-                      {!isCollapsed && item.soon && false && (
+                      {!isCollapsed && false && (
                         <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground border border-muted-foreground/20">Coming Soon</span>
                       )}
                     </button>
@@ -154,40 +227,68 @@ export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  className="text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  tooltip="Feedback"
+                >
+                  <button
+                    onClick={() => window.open("https://pogepg.featurebase.app/", "_blank")}
+                  >
+                    <QuestionMarkCircleIcon className="h-5 w-5" />
+                    {!isCollapsed && (
+                      <span className="flex items-center gap-1">
+                        Feedback
+                      </span>
+                    )}
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         {/* Dynamic Content */}
         {/* Intentionally not showing DatabaseTree here for table viewer; it renders inside the Table Viewer page now. */}
 
-        {false && isCollapsed && currentView === "schema-manager" && connectedServers.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Schema Objects</SidebarGroupLabel>
-            <SidebarGroupContent>
-              {/* Tree is rendered inside Schema Manager page now */}
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
 
         {/* Settings at the bottom */}
         <div className="flex-1" />
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="relative">
+              {/* Animated active indicator for settings */}
+              {!isCollapsed && (
+                <div
+                  className="absolute left-0 w-0.5 bg-primary transition-all duration-300 ease-out rounded-r z-10"
+                  style={{
+                    top: `${settingsIndicatorStyle.top}px`,
+                    height: `${settingsIndicatorStyle.height}px`,
+                    opacity: settingsIndicatorStyle.opacity,
+                  }}
+                />
+              )}
               {/* Settings Item */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={settingsItem.id === currentView}
-                  className={settingsItem.id === currentView ? "bg-green-50 text-green-700 hover:bg-green-100" : ""}
+                  className={settingsItem.id === currentView
+                    ? "bg-primary/10 text-primary font-bold pl-2 relative"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"}
                   tooltip={settingsItem.title}
                 >
                   <button
+                    ref={(el) => {
+                      menuItemRefs.current[settingsItem.id] = el
+                    }}
                     onClick={() => navigateToView(settingsItem.id)}
                     className="flex items-center justify-between w-full"
                   >
                     <div className="flex items-center gap-2">
-                      <settingsItem.icon className="h-4 w-4" />
+                      <settingsItem.icon className="h-5 w-5" />
                       {!isCollapsed && <span>{settingsItem.title}</span>}
                     </div>
                     <TooltipProvider>
@@ -199,9 +300,9 @@ export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {
                               console.log("Lock button clicked")
                               logout()
                             }}
-                            className="h-6 w-6 p-0 hover:bg-accent rounded flex items-center justify-center cursor-pointer"
+                            className="h-6 w-6 p-0 hover:bg-accent text-muted-foreground hover:text-foreground rounded flex items-center justify-center cursor-pointer"
                           >
-                            <Lock className="h-4 w-4" />
+                            <LockClosedIcon className="h-4 w-4" />
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>

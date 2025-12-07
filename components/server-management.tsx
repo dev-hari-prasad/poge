@@ -40,12 +40,6 @@ export function ServerManagement({ onViewChange }: ServerManagementProps) {
     onViewChange?.("table-viewer")
   }
 
-  const openSchemaManager = (serverId: string) => {
-    // Store the selected server ID in localStorage for the schema manager to pick up
-    localStorage.setItem("postgres-manager-selected-server", serverId)
-    // Navigate to schema manager using state
-    onViewChange?.("schema-manager")
-  }
 
   return (
     <div className="flex flex-col h-full">
@@ -56,7 +50,7 @@ export function ServerManagement({ onViewChange }: ServerManagementProps) {
         </div>
         <div className="ml-auto">
           <Button onClick={() => setShowAddDialog(true)} className="bg-green-600 hover:bg-green-700">
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-0 " />
             Add Database
           </Button>
         </div>
@@ -79,8 +73,8 @@ export function ServerManagement({ onViewChange }: ServerManagementProps) {
               interface.
             </p>
             <Button onClick={() => setShowAddDialog(true)} className="bg-green-600 hover:bg-green-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Database
+              <Plus className="h-4 w-4 mr-0" />
+              Add  Database
             </Button>
           </div>
         ) : (
@@ -162,7 +156,7 @@ export function ServerManagement({ onViewChange }: ServerManagementProps) {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent side="top" align="center" className="max-w-xs text-center">
-                            Starring a database makes it auto-selected across pages (Query, Viewer, Schema).
+                            Starring a database makes it auto-selected across pages (Query, Viewer).
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
