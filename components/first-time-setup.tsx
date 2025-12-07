@@ -426,7 +426,7 @@ export function FirstTimeSetup() {
                 onClick={() => setSelectedTheme("system")}
                 className={`flex-1 flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${selectedTheme === "system"
                   ? "border-primary bg-primary/20 text-primary"
-                  : "border-border hover:border-primary/50 hover:bg-accent"
+                  : "border-border hover:border-primary/20 hover:bg-accent"
                   }`}
               >
                 <ComputerDesktopIcon className={`h-6 w-6 mb-2 ${selectedTheme === "system" ? "text-primary" : "text-muted-foreground"}`} />
@@ -437,7 +437,7 @@ export function FirstTimeSetup() {
                 onClick={() => setSelectedTheme("light")}
                 className={`flex-1 flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${selectedTheme === "light"
                   ? "border-primary bg-primary/20 text-primary"
-                  : "border-border hover:border-primary/50 hover:bg-accent"
+                  : "border-border hover:border-primary/20 hover:bg-accent"
                   }`}
               >
                 <SunIcon className={`h-6 w-6 mb-2 ${selectedTheme === "light" ? "text-primary" : "text-muted-foreground"}`} />
@@ -448,7 +448,7 @@ export function FirstTimeSetup() {
                 onClick={() => setSelectedTheme("dark")}
                 className={`flex-1 flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${selectedTheme === "dark"
                   ? "border-primary bg-primary/20 text-primary"
-                  : "border-border hover:border-primary/50 hover:bg-accent"
+                  : "border-border hover:border-primary/20 hover:bg-accent"
                   }`}
               >
                 <MoonIcon className={`h-6 w-6 mb-2 ${selectedTheme === "dark" ? "text-primary" : "text-muted-foreground"}`} />
