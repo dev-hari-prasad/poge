@@ -717,7 +717,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
             <Button
               variant="outline"
               className="gap-2"
-              onClick={() => window.open("https://github.com/the-not-boring/poge-pg", "_blank")}
+              onClick={() => window.open("https://github.com/dev-hari-prasad/poge", "_blank")}
             >
               <StarIcon className="h-4 w-4" />
               Star on GitHub
@@ -725,7 +725,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
             <Button
               variant="outline"
               className="gap-2"
-              onClick={() => window.open("https://github.com/the-not-boring/poge-pg/fork", "_blank")}
+              onClick={() => window.open("https://github.com/dev-hari-prasad/poge/fork", "_blank")}
             >
               <GitFork className="h-4 w-4" />
               Fork on GitHub
