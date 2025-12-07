@@ -4,7 +4,7 @@
 
 Poge is your quick database tool — for those moments when you just need to peek at tables, run a few queries, and get back to building awesome stuff. Skip the heavy tools (pgAdmin, DBeaver), skip the wait. Just open, connect, and you're off! 🚀. You can try demo on https://poge.dev.
 
-<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fthe-not-boring%2Fpoge-pg&project-name=poge-pg&repository-name=poge-pg"><img src="https://vercel.com/button" alt="Deploy to vercel" height="32" /></a>
+<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdev-hari-prasad%2Fpoge&project-name=poge&repository-name=poge"><img src="https://vercel.com/button" alt="Deploy to vercel" height="32" /></a>
 
 ## What you get
 - Simple, speedy UI for tables and SQL
