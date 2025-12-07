@@ -1,8 +1,8 @@
 # Changelog
 
 ## v0.2
-- **Major UI/UX Overhaul**: Complete visual redesign featuring a refined color palette, modern typography, and improved layout for a premium, intuitive user experience.
-- **Enhanced Security Controls**: Resolved critical issues with the auto-lock mechanism. The application now strictly adheres to user-defined timeout settings, ensuring your session security preferences are respected.
+- **Major UI/UX Overhaul**: Complete visual redesign with a new color palette, typography, and layout.
+- **Enhanced Security Controls**: Resolved critical issues with the auto-lock mechanism. The application now strictly adheres to user-defined timeout settings.
 - **Polished Interactions**: Smoother transitions and better feedback across the application.
 
 ## v0.1
