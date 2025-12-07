@@ -1,6 +1,6 @@
 "use client"
 
-import { Database, ChevronLeft, ChevronRight, ChevronDown, Search } from "lucide-react"
+import { CircleStackIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { TableDataViewer } from "@/components/table-data-viewer"
@@ -20,7 +20,7 @@ import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Download, RefreshCw, Info, Plus, Trash2, Calendar as CalendarIcon, Columns, Edit, Maximize2 } from "lucide-react"
+import { ArrowDownTrayIcon, ArrowPathIcon, InformationCircleIcon, PlusIcon, TrashIcon, CalendarIcon, ViewColumnsIcon, PencilIcon, ArrowsPointingOutIcon } from "@heroicons/react/24/outline"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import { SaveTableDialog } from "@/components/save-table-dialog"
 import { DeleteTableDialog } from "@/components/delete-table-dialog"
@@ -256,7 +256,7 @@ export function TableViewer() {
         <div className="flex items-center gap-2">
 
           <div className="hidden md:block relative">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <MagnifyingGlassIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -279,7 +279,7 @@ export function TableViewer() {
                       <DropdownMenuTrigger asChild>
                         <BreadcrumbLink className="cursor-pointer inline-flex items-center gap-1">
                           {selectedTable.database}
-                          <ChevronDown className="h-3 w-3 opacity-70" />
+                          <ChevronDownIcon className="h-3 w-3 opacity-70" />
                         </BreadcrumbLink>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
@@ -295,7 +295,7 @@ export function TableViewer() {
                       <DropdownMenuTrigger asChild>
                         <BreadcrumbLink className="cursor-pointer inline-flex items-center gap-1">
                           {selectedTable.schema}
-                          <ChevronDown className="h-3 w-3 opacity-70" />
+                          <ChevronDownIcon className="h-3 w-3 opacity-70" />
                         </BreadcrumbLink>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="max-h-72 overflow-auto">
@@ -324,7 +324,7 @@ export function TableViewer() {
                       <DropdownMenuTrigger asChild>
                         <BreadcrumbPage className="cursor-pointer inline-flex items-center gap-1">
                           {selectedTable.table}
-                          <ChevronDown className="h-3 w-3 opacity-70" />
+                          <ChevronDownIcon className="h-3 w-3 opacity-70" />
                         </BreadcrumbPage>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="max-h-72 overflow-auto">
@@ -365,7 +365,7 @@ export function TableViewer() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => viewerRef.current?.reload()} disabled={isLoading}>
-                  <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+                  <ArrowPathIcon className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -398,7 +398,7 @@ export function TableViewer() {
                   }}
                   disabled={!selectedTable}
                 >
-                  <Maximize2 className="h-4 w-4" />
+                  <ArrowsPointingOutIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -418,16 +418,16 @@ export function TableViewer() {
                 title="Add"
                 disabled={!selectedTable}
               >
-                <Plus className="h-4 w-4" />
+                <PlusIcon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem onClick={openAddRowDialog} disabled={!selectedTable}>
-                <Plus className="h-4 w-4 mr-2" />
+                <PlusIcon className="h-4 w-4 mr-2" />
                 Add Row
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShowAddColumn(true)} disabled={!selectedTable}>
-                <Columns className="h-4 w-4 mr-2" />
+                <ViewColumnsIcon className="h-4 w-4 mr-2" />
                 Add Column
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -443,7 +443,7 @@ export function TableViewer() {
                   onClick={() => selectedTable && setShowEditTableDialog(true)}
                   disabled={!selectedTable}
                 >
-                  <Edit className="h-4 w-4" />
+                  <PencilIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -464,7 +464,7 @@ export function TableViewer() {
                   disabled={!selectedTable}
                   title="Delete Table"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <TrashIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -502,7 +502,7 @@ export function TableViewer() {
                   }}
                   disabled={!selectedTable || (tableInfo?.rows ?? 0) === 0}
                 >
-                  <Download className="h-4 w-4" />
+                  <ArrowDownTrayIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -514,96 +514,96 @@ export function TableViewer() {
       </header>
 
       <div className="flex overflow-hidden min-h-0 h-[calc(100svh-3.5rem)] w-full relative">
-        {connectedServers.length === 0 ? (
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-[5] flex flex-col items-center justify-center text-center">
-            <Database className="h-16 w-16 text-muted-foreground mb-4" />
-            <h2 className="text-xl font-semibold mb-2">No Connected Servers</h2>
-            <p className="text-muted-foreground mb-4 max-w-md">
-              Connect to a PostgreSQL server from the Servers section to browse tables and view data.
-            </p>
-          </div>
-        ) : (
-          <ResizablePanelGroup
-            direction="horizontal"
-            dir="ltr"
-            className="h-full min-h-0"
-            onLayout={(sizes) => {
-              // Only update saved tree size when both panels are present
-              if (Array.isArray(sizes) && sizes.length > 1) {
-                setTreeSize(sizes[0] as number)
-              }
-            }}
-          >
-            {!isTreeCollapsed && (
-              <ResizablePanel
-                defaultSize={treeSize}
-                minSize={15}
-                maxSize={45}
-                className="min-w-0 min-h-0"
-                onResize={(size) => {
-                  // Persist the size only when the tree panel is actually being resized
-                  if (typeof size === "number") {
-                    setTreeSize(size)
-                  }
-                }}
-              >
-                <aside className="h-full overflow-y-auto overflow-x-hidden border-r p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-xs font-semibold text-muted-foreground">Database Objects</div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6 rounded-md bg-muted text-muted-foreground hover:bg-muted/80 border border-border shadow-sm"
-                      onClick={() => setIsTreeCollapsed(true)}
-                      title="Collapse"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <DatabaseTree servers={connectedServers} />
-                </aside>
-              </ResizablePanel>
-            )}
-            {!isTreeCollapsed && <ResizableHandle withHandle />}
-            <ResizablePanel className="min-w-0 min-h-0">
-              <main className="flex-1 h-full overflow-hidden min-h-0">
-              {!selectedTable ? (
-                <div className="flex flex-col items-center justify-center h-full w-full text-center">
-                  <Database className="h-16 w-16 text-muted-foreground mb-4" />
-                  <h2 className="text-xl font-semibold mb-2">Select a Table</h2>
-                  <p className="text-muted-foreground mb-4 max-w-md">
-                    Choose a table from the database tree to view its data and structure.
-                  </p>
+        <ResizablePanelGroup
+          direction="horizontal"
+          dir="ltr"
+          className="h-full min-h-0"
+          onLayout={(sizes) => {
+            // Only update saved tree size when both panels are present
+            if (Array.isArray(sizes) && sizes.length > 1) {
+              setTreeSize(sizes[0] as number)
+            }
+          }}
+        >
+          {!isTreeCollapsed && (
+            <ResizablePanel
+              defaultSize={treeSize}
+              minSize={15}
+              maxSize={45}
+              className="min-w-0 min-h-0"
+              onResize={(size) => {
+                // Persist the size only when the tree panel is actually being resized
+                if (typeof size === "number") {
+                  setTreeSize(size)
+                }
+              }}
+            >
+              <aside className="h-full overflow-y-auto overflow-x-hidden border-r p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs font-semibold text-muted-foreground">Database Objects</div>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6 rounded-md bg-muted text-muted-foreground hover:bg-muted/80 border border-border shadow-sm"
+                    onClick={() => setIsTreeCollapsed(true)}
+                    title="Collapse"
+                  >
+                    <ChevronLeftIcon className="h-4 w-4" />
+                  </Button>
                 </div>
-              ) : (
-                <div className="h-full p-3">
-                  <div className="h-full rounded-lg border bg-card shadow-sm overflow-hidden">
-                <TableDataViewer
-                      ref={viewerRef}
-                      selectedTable={selectedTable!}
-                      onInfoChange={setTableInfo}
-                      onLoadingChange={setIsLoading}
-                  searchTerm={searchTerm}
-                    />
-                  </div>
+                <DatabaseTree servers={connectedServers} />
+              </aside>
+            </ResizablePanel>
+          )}
+          {!isTreeCollapsed && <ResizableHandle withHandle />}
+          <ResizablePanel className="min-w-0 min-h-0">
+            <main className="flex-1 h-full overflow-hidden min-h-0">
+            {!selectedTable ? (
+              <div className="flex flex-col items-center justify-center h-full w-full text-center">
+                <CircleStackIcon className="h-16 w-16 text-muted-foreground mb-4" />
+                <h2 className="text-xl font-semibold mb-2">Select a Table</h2>
+                <p className="text-muted-foreground mb-4 max-w-md">
+                  Choose a table from the database tree to view its data and structure.
+                </p>
+              </div>
+            ) : (
+              <div className="h-full p-3">
+                <div className="h-full rounded-lg border bg-card shadow-sm overflow-hidden">
+              <TableDataViewer
+                    ref={viewerRef}
+                    selectedTable={selectedTable!}
+                    onInfoChange={setTableInfo}
+                    onLoadingChange={setIsLoading}
+                searchTerm={searchTerm}
+                  />
+                </div>
+              </div>
+            )}
+              {isTreeCollapsed && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6 rounded-r-md bg-muted text-muted-foreground hover:bg-muted/80 border border-border shadow-sm"
+                    onClick={() => setIsTreeCollapsed(false)}
+                    title="Expand"
+                  >
+                    <ChevronRightIcon className="h-4 w-4" />
+                  </Button>
                 </div>
               )}
-                {isTreeCollapsed && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6 rounded-r-md bg-muted text-muted-foreground hover:bg-muted/80 border border-border shadow-sm"
-                      onClick={() => setIsTreeCollapsed(false)}
-                      title="Expand"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-            </main>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          </main>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+        
+        {connectedServers.length === 0 && (
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-[5] flex flex-col items-center justify-center text-center">
+            <CircleStackIcon className="h-16 w-16 text-muted-foreground mb-4" />
+            <h2 className="text-xl font-semibold mb-2">No Connected Database</h2>
+            <p className="text-muted-foreground mb-4 max-w-sm">
+              Connect to a PostgreSQL database from the Database section to browse tables and view data.
+            </p>
+          </div>
         )}
       </div>
 
@@ -669,7 +669,7 @@ export function TableViewer() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddRow(false)}>Cancel</Button>
             <Button onClick={submitAddRow} disabled={submitting || !selectedServer}>
-              <Plus className="h-4 w-4 mr-2" />
+              <PlusIcon className="h-4 w-4 mr-2" />
               {submitting ? 'Adding…' : 'Add Row'}
             </Button>
           </DialogFooter>
@@ -719,7 +719,7 @@ export function TableViewer() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddColumn(false)}>Cancel</Button>
             <Button onClick={submitAddColumn} disabled={submitting || !addColumnForm.name.trim() || !selectedServer}>
-              <Columns className="h-4 w-4 mr-2" />
+              <ViewColumnsIcon className="h-4 w-4 mr-2" />
               {submitting ? 'Adding…' : 'Add Column'}
             </Button>
           </DialogFooter>
@@ -747,7 +747,7 @@ export function TableViewer() {
             <DialogTitle className="flex items-center gap-2">
               {expandedResult.result && (
                 <>
-                  <Database className="h-4 w-4" />
+                  <CircleStackIcon className="h-4 w-4" />
                   {selectedTable ? `${selectedTable.schema}.${selectedTable.table}` : 'Table Data'}
                 </>
               )}

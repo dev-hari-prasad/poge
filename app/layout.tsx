@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import { SecurityProvider } from '@/contexts/security-context'
+import { FeatureBaseScript } from '@/components/featurebase-script'
 
 export const metadata: Metadata = {
   title: 'Poge - Modern PostgreSQL Database Management Tool | Database GUI & Admin',
@@ -111,18 +112,17 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/Poge Logo For Favicon.png" sizes="180x180" />
         <link rel="icon" href="/Poge Logo For Favicon.png" type="image/png" sizes="192x192" />
         <link rel="icon" href="/Poge Logo For Favicon.png" type="image/png" sizes="512x512" />
-        
+
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
-        
+
         {/* Preconnect for Performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        
-        {/* Fonts */}
-        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-        
+
+        {/* Fonts - Using local fonts (JetBrains Mono and Manrope) */}
+
         {/* Structured Data for SEO */}
         <script
           type="application/ld+json"
@@ -153,25 +153,25 @@ export default function RootLayout({
             })
           }}
         />
-        
+
         {/* Custom Styles */}
         <style>{`
 html {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Consolas', 'Courier New', monospace;
-  --font-serif: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  --font-serif: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Consolas', 'Courier New', monospace;
 }
         `}</style>
-        
-        {/* Supahub Widget */}
-        <script id="supahub-loader" dangerouslySetInnerHTML={{__html: `!(function (s,u,p,a){function load(){if(!u.getElementById(a)){var g=u.createElement(p),h=u.getElementsByTagName(p)[0];g.id=a;g.src='https://widget.supahub.com/sdk.js';h.parentNode.insertBefore(g,h);}}'function'!=typeof s.SupahubWidget&&(s.SupahubWidget=function(){(s.SupahubWidget.q=s.SupahubWidget.q||[]).push(arguments)}),'complete'===u.readyState||'interactive'===u.readyState?load():s.addEventListener('DOMContentLoaded',load);})(window,document,'script','supahub-sdk');`}} />
+
+        {/* FeatureBase Widget */}
+        <FeatureBaseScript />
       </head>
       <body>
         <SecurityProvider>
           {children}
         </SecurityProvider>
-        
+
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-BMRMHKKBFX"
@@ -185,7 +185,7 @@ html {
             gtag('config', 'G-BMRMHKKBFX');
           `}
         </Script>
-        
+
         {/* Additional SEO Scripts */}
         <Script id="seo-enhancement" strategy="afterInteractive">
           {`

@@ -1,4 +1,4 @@
-import { Star } from "lucide-react"
+import { StarIcon } from "@heroicons/react/24/solid"
 
 interface GitHubStarProps {
   className?: string
@@ -7,9 +7,9 @@ interface GitHubStarProps {
 
 export function GitHubStar({ className = "", size = 16 }: GitHubStarProps) {
   return (
-    <Star 
+    <StarIcon 
       className={`text-yellow-500 dark:text-yellow-400 ${className}`}
-      size={size}
+      style={{ width: size, height: size }}
       fill="currentColor"
     />
   )

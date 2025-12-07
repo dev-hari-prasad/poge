@@ -235,9 +235,17 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
 
     if (theme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-      root.classList.toggle("dark", systemTheme === "dark")
+      if (systemTheme === "dark") {
+        root.classList.add("dark")
+      } else {
+        root.classList.remove("dark")
+      }
     } else {
-      root.classList.toggle("dark", theme === "dark")
+      if (theme === "dark") {
+        root.classList.add("dark")
+      } else {
+        root.classList.remove("dark")
+      }
     }
   }
 

@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Shield, Key, Palette, CheckCircle, ArrowRight, ArrowLeft, Lock, Database, Eye, FileText, AlertTriangle, BarChart3, X } from "lucide-react"
+import { ShieldCheckIcon, KeyIcon, PaintBrushIcon, ArrowLeftIcon, ArrowRightIcon, LockClosedIcon, CircleStackIcon, ExclamationTriangleIcon, StarIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from "@heroicons/react/24/outline"
+import { GitFork } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -18,8 +19,8 @@ export function FirstTimeSetup() {
   const [currentStep, setCurrentStep] = useState(0)
   const [pin, setPin] = useState("")
   const [confirmPin, setConfirmPin] = useState("")
-  const [pinDigits, setPinDigits] = useState<string[]>(["", "", "", "", "", ""]) 
-  const [confirmPinDigits, setConfirmPinDigits] = useState<string[]>(["", "", "", "", "", ""]) 
+  const [pinDigits, setPinDigits] = useState<string[]>(["", "", "", "", "", ""])
+  const [confirmPinDigits, setConfirmPinDigits] = useState<string[]>(["", "", "", "", "", ""])
   const pinInputRefs = useRef<(HTMLInputElement | null)[]>([])
   const confirmPinInputRefs = useRef<(HTMLInputElement | null)[]>([])
   const [selectedTheme, setSelectedTheme] = useState<"light" | "dark" | "system">("system")
@@ -40,10 +41,10 @@ export function FirstTimeSetup() {
       return
     }
 
-      setIsImporting(true)
+    setIsImporting(true)
     try {
       const fileContent = await file.text()
-      
+
       // Decrypt the data
       const decryptedData = await EncryptionService.decrypt(fileContent, importPassword)
       const importData = JSON.parse(decryptedData)
@@ -67,16 +68,16 @@ export function FirstTimeSetup() {
       }
 
       setError("")
-      
+
       // Complete the setup process with imported data
       setLoading(true)
       try {
         // Set up the PIN first
         await setupPin(importData.data.settings?.pin || pin)
-        
+
         // Set the theme
         await setTheme(importData.data.settings?.theme || selectedTheme)
-        
+
         // Import all the data (servers, queries, etc.)
         if (importData.data.servers) {
           // Import servers
@@ -84,19 +85,19 @@ export function FirstTimeSetup() {
             localStorage.setItem("postgres-manager-servers", JSON.stringify([server]))
           })
         }
-        
+
         if (importData.data.savedQueries) {
           // Import saved queries
           localStorage.setItem("postgres-manager-saved-queries", JSON.stringify(importData.data.savedQueries))
         }
-        
+
         if (importData.data.queryHistory) {
           // Import query history
           localStorage.setItem("postgres-manager-query-history", JSON.stringify(importData.data.queryHistory))
         }
-        
-        try { localStorage.removeItem("postgres-manager-session-locked") } catch {}
-        
+
+        try { localStorage.removeItem("postgres-manager-session-locked") } catch { }
+
         // Trigger confetti for successful import onboarding
         triggerConfetti({
           particleCount: 200,
@@ -123,21 +124,21 @@ export function FirstTimeSetup() {
     {
       title: "",
       description: "Let's set up your secure database management environment",
-      icon: Shield,
+      icon: ShieldCheckIcon,
     },
     {
       title: "Create Your Security PIN",
       description: "Choose a 6-digit PIN to protect your data",
-      icon: Key,
+      icon: KeyIcon,
     },
     {
       title: "Choose Your Theme",
       description: "Select your preferred appearance",
-      icon: Palette,
+      icon: PaintBrushIcon,
     },
   ]
 
-  
+
 
   const validatePin = () => {
     if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
@@ -207,7 +208,7 @@ export function FirstTimeSetup() {
       try {
         await setupPin(pin)
         await setTheme(selectedTheme)
-        
+
         // Trigger confetti for successful 3-step onboarding
         triggerConfetti({
           particleCount: 200,
@@ -241,7 +242,7 @@ export function FirstTimeSetup() {
       try {
         await setupPin(pin)
         await setTheme(selectedTheme)
-        
+
         // Trigger confetti for successful 3-step onboarding
         triggerConfetti({
           particleCount: 200,
@@ -249,7 +250,7 @@ export function FirstTimeSetup() {
           origin: { x: 0.5, y: 0.4 },
           colors: ["#26ccff", "#a25afd", "#ff5e7e", "#88ff5a", "#fcff42", "#ffa62d", "#ff36ff"]
         })
-        
+
         // No reload: SecurityProvider will render the main app once authenticated
       } catch (error) {
         setError("Setup failed. Please try again.")
@@ -269,17 +270,17 @@ export function FirstTimeSetup() {
         return (
           <div className="space-y-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <Shield className="h-8 w-8 text-green-600" />
+              <ShieldCheckIcon className="h-8 w-8 text-green-600" />
             </div>
             <div className="space-y-3">
               <p className="text-base text-muted-foreground">
-                Manage PostgreSQL from your browser: connect to servers, explore schemas, run queries, and design tables all from your browser.
+                Manage PostgreSQL from your browser.
               </p>
             </div>
             <div className="grid gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                <span className="text-sm">Connect to multiple servers.</span>
+                <span className="text-sm">Connect to multiple databases.</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-green-600 rounded-full"></div>
@@ -330,7 +331,7 @@ export function FirstTimeSetup() {
           <div className="space-y-6">
             <div>
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <Key className="h-8 w-8 text-blue-600" />
+                <KeyIcon className="h-8 w-8 text-blue-600" />
               </div>
               <h2 className="text-2xl font-bold">Create Your Security PIN</h2>
               <p className="text-base text-muted-foreground">
@@ -412,7 +413,7 @@ export function FirstTimeSetup() {
           <div className="space-y-6">
             <div>
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-                <Palette className="h-8 w-8 text-purple-600" />
+                <PaintBrushIcon className="h-8 w-8 text-purple-600" />
               </div>
               <h2 className="text-2xl font-bold">Choose Your Theme</h2>
               <p className="text-base text-muted-foreground">
@@ -420,32 +421,39 @@ export function FirstTimeSetup() {
               </p>
             </div>
 
-            <div className="max-w-sm">
-              <Select value={selectedTheme} onValueChange={(value: any) => setSelectedTheme(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="system">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-gradient-to-r from-slate-200 to-slate-800"></div>
-                      System (Auto)
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="light">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-white border"></div>
-                      Light Mode
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="dark">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-slate-800"></div>
-                      Dark Mode
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setSelectedTheme("system")}
+                className={`flex-1 flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${selectedTheme === "system"
+                  ? "border-primary bg-primary/20 text-primary"
+                  : "border-border hover:border-primary/50 hover:bg-accent"
+                  }`}
+              >
+                <ComputerDesktopIcon className={`h-6 w-6 mb-2 ${selectedTheme === "system" ? "text-primary" : "text-muted-foreground"}`} />
+                <span className="text-sm font-medium">System</span>
+              </button>
+
+              <button
+                onClick={() => setSelectedTheme("light")}
+                className={`flex-1 flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${selectedTheme === "light"
+                  ? "border-primary bg-primary/20 text-primary"
+                  : "border-border hover:border-primary/50 hover:bg-accent"
+                  }`}
+              >
+                <SunIcon className={`h-6 w-6 mb-2 ${selectedTheme === "light" ? "text-primary" : "text-muted-foreground"}`} />
+                <span className="text-sm font-medium">Light</span>
+              </button>
+
+              <button
+                onClick={() => setSelectedTheme("dark")}
+                className={`flex-1 flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${selectedTheme === "dark"
+                  ? "border-primary bg-primary/20 text-primary"
+                  : "border-border hover:border-primary/50 hover:bg-accent"
+                  }`}
+              >
+                <MoonIcon className={`h-6 w-6 mb-2 ${selectedTheme === "dark" ? "text-primary" : "text-muted-foreground"}`} />
+                <span className="text-sm font-medium">Dark</span>
+              </button>
             </div>
           </div>
         )
@@ -477,9 +485,8 @@ export function FirstTimeSetup() {
                   {steps.map((step, index) => (
                     <div key={index} className="flex items-center">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                          index <= currentStep ? "bg-green-600 text-white" : "bg-muted text-muted-foreground"
-                        }`}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${index <= currentStep ? "bg-green-600 text-white" : "bg-muted text-muted-foreground"
+                          }`}
                       >
                         {index < currentStep ? "✓" : index + 1}
                       </div>
@@ -500,7 +507,7 @@ export function FirstTimeSetup() {
                     onClick={handleBack}
                     disabled={currentStep === 0 || currentStep === steps.length - 1}
                   >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    <ArrowLeftIcon className="h-4 w-4 mr-1" />
                     Back
                   </Button>
 
@@ -511,7 +518,7 @@ export function FirstTimeSetup() {
                       className="bg-green-600 hover:bg-green-700"
                     >
                       {loading ? "Setting up..." : "Next"}
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      <ArrowRightIcon className="h-4 w-4 ml-1" />
                     </Button>
                   ) : (
                     <Button onClick={handleStartUsingApp} className="bg-green-600 hover:bg-green-700">
@@ -522,7 +529,7 @@ export function FirstTimeSetup() {
               </CardContent>
             </Card>
 
-            
+
           </div>
 
           {/* Right column - gradient with logo */}
@@ -553,6 +560,25 @@ export function FirstTimeSetup() {
                   <h2 className="mt-6 text-xl md:text-2xl font-normal leading-snug max-w-[70%] mx-auto">
                     Your journey to better Postgres management starts here.
                   </h2>
+
+                  <div className="flex items-center justify-center gap-3 mt-6">
+                    <Button
+                      variant="outline"
+                      className="gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+                      onClick={() => window.open("https://github.com/the-not-boring/poge-pg", "_blank")}
+                    >
+                      <StarIcon className="h-4 w-4" />
+                      Star on GitHub
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+                      onClick={() => window.open("https://github.com/the-not-boring/poge-pg/fork", "_blank")}
+                    >
+                      <GitFork className="h-4 w-4" />
+                      Fork on GitHub
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Bottom-centered encryption note */}
@@ -564,69 +590,69 @@ export function FirstTimeSetup() {
                           All data is stored locally with AES-256 military grade encryption
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent 
-                        side="top" 
-                        align="center" 
+                      <TooltipContent
+                        side="top"
+                        align="center"
                         className="p-0 border-0 bg-transparent shadow-none"
                         sideOffset={10}
                       >
                         <div className="bg-background rounded-xl border border-border max-w-4xl w-[500px] shadow-2xl">
 
-                          
+
                           <div className="space-y-0">
-                                                        {/* Encryption Algorithm */}
+                            {/* Encryption Algorithm */}
                             <div className="border-b border-dashed border-muted-foreground/30 p-6">
-                                <div className="flex gap-3">
-                                    <Lock className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
-                                    <div>
-                                        <h4 className="text-lg font-semibold">Encryption Algorithm</h4>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            AES-256-GCM encryption with 256-bit keys
-                                        </p>
-                                    </div>
+                              <div className="flex gap-3">
+                                <LockClosedIcon className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
+                                <div>
+                                  <h4 className="text-lg font-semibold">Encryption Algorithm</h4>
+                                  <p className="text-sm text-muted-foreground leading-relaxed">
+                                    AES-256-GCM encryption with 256-bit keys
+                                  </p>
                                 </div>
+                              </div>
                             </div>
 
                             {/* Local Storage */}
                             <div className="border-b border-dashed border-muted-foreground/30 p-6">
-                                <div className="flex gap-3">
-                                    <Database className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
-                                    <div>
-                                        <h4 className="text-lg font-semibold">Local Storage</h4>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            All data encrypted locally, never transmitted to servers
-                                        </p>
-                                    </div>
+                              <div className="flex gap-3">
+                                <CircleStackIcon className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
+                                <div>
+                                  <h4 className="text-lg font-semibold">Local Storage</h4>
+                                  <p className="text-sm text-muted-foreground leading-relaxed">
+                                    All data encrypted locally, never transmitted to servers
+                                  </p>
                                 </div>
+                              </div>
                             </div>
 
                             {/* PIN Security */}
                             <div className="border-b border-dashed border-muted-foreground/30 p-6">
-                                <div className="flex gap-3">
-                                    <Shield className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
-                                    <div>
-                                        <h4 className="text-lg font-semibold">PIN Security</h4>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            6-digit PIN with 1,000,000 combinations × 100,000 iterations
-                                        </p>
-                                    </div>
+                              <div className="flex gap-3">
+                                <ShieldCheckIcon className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
+                                <div>
+                                  <h4 className="text-lg font-semibold">PIN Security</h4>
+                                  <p className="text-sm text-muted-foreground leading-relaxed">
+                                    6-digit PIN with 1,000,000 combinations × 100,000 iterations
+                                  </p>
                                 </div>
+                              </div>
                             </div>
 
                             {/* Threat Level */}
                             <div className="p-6">
-                                <div className="flex gap-3">
-                                    <AlertTriangle className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
-                                    <div>
-                                        <h4 className="text-lg font-semibold">Threat Level</h4>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            Breaking encryption takes longer than the universe's age.
-                                        </p>
-                                    </div>
+                              <div className="flex gap-3">
+                                <ExclamationTriangleIcon className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
+                                <div>
+                                  <h4 className="text-lg font-semibold">Threat Level</h4>
+                                  <p className="text-sm text-muted-foreground leading-relaxed">
+                                    Breaking encryption takes longer than the universe's age.
+                                  </p>
                                 </div>
+                              </div>
                             </div>
                           </div>
-                  </div>
+                        </div>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

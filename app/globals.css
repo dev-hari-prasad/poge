@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Font Face Declarations */
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/Fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/Fonts/JetBrainsMono-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/Fonts/Manrope-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -10,86 +35,98 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
+    /* Light theme */
+    --background: 0 0% 100%; /* White background */
+    --foreground: 0 0% 9%; /* Dark text */
+
+    --card: 0 0% 98%; /* Very light gray card */
+    --card-foreground: 0 0% 9%;
+
+    --popover: 0 0% 98%; /* Very light gray popover */
+    --popover-foreground: 0 0% 9%;
+
+    --primary: 153 60% 40%; /* Darker green for light mode */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%; /* Light gray secondary */
     --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
+
+    --muted: 0 0% 96%; /* Light gray muted */
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%; /* Light gray accent */
     --accent-foreground: 0 0% 9%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 142.1 76.2% 36.3%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 142.1 76.2% 36.3%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 142.1 76.2% 36.3%;
-    /* Global scrollbar color tokens */
-    --scrollbar-thumb: rgba(34, 197, 94, 0.6); /* idle 60% */
-    --scrollbar-thumb-hover: rgba(22, 163, 74, 0.9); /* active/hover 90% */
-    --scrollbar-track: rgba(0, 0, 0, 0.08);
-    /* Hint UA to theme built-in scrollbars appropriately */
-    color-scheme: light dark;
-  }
-  .dark {
-    --background: 220 7% 10%;
-    --foreground: 0 0% 98%;
-    --card: 220 7% 12%;
-    --card-foreground: 0 0% 98%;
-    --popover: 220 7% 12%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 220 7% 14%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 220 7% 14%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 220 7% 14%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 7% 18%;
-    --input: 220 7% 18%;
-    --ring: 142.1 76.2% 36.3%;
-    --chart-1: 220 70% 50%;
+
+    --border: 0 0% 89.8%; /* Light gray borders */
+    --input: 0 0% 89.8%; /* Light gray inputs */
+    --ring: 153 60% 40%; /* Darker green for light mode */
+
+    --radius: 0.5rem; /* 8px */
+
+    --sidebar-background: 0 0% 98%; /* Light sidebar */
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 153 60% 40%; /* Darker green for light mode */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%; /* Light gray sidebar accent */
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 89.8%; /* Light gray sidebar border */
+    --sidebar-ring: 153 60% 40%; /* Darker green for light mode */
+
+    /* Chart colors adapted to theme */
+    --chart-1: 153 60% 40%; /* Darker green for light mode */
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 220 7% 12%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 142.1 76.2% 36.3%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 7% 16%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 220 7% 18%;
-    --sidebar-ring: 142.1 76.2% 36.3%;
-    /* Global scrollbar color tokens (dark) - slightly darker */
-    --scrollbar-thumb: rgba(21, 128, 61, 0.55); /* darker idle in dark */
-    --scrollbar-thumb-hover: rgba(22, 101, 52, 0.9);
-    --scrollbar-track: rgba(255, 255, 255, 0.06);
+
+    /* Global scrollbar color tokens for light theme */
+    --scrollbar-thumb: rgba(46, 155, 102, 0.4); /* Darker green for light mode */
+    --scrollbar-thumb-hover: rgba(46, 155, 102, 0.7);
+    --scrollbar-track: rgba(0, 0, 0, 0.05);
+
+    color-scheme: light;
   }
-  .theme {
-    --animate-ripple: ripple var(--duration,2s) ease calc(var(--i, 0)*.2s) infinite;
+
+  .dark {
+    --background: 0 0% 12%; /* Slightly lighter black */
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 18%; /* Light gray card */
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 18%; /* Light gray popover */
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 153 60% 53%; /* #3ECF8E */
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 16%; /* Neutral gray secondary */
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 16%; /* Neutral gray muted */
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 0 0% 16%; /* Neutral gray accent */
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 26%; /* Neutral gray borders */
+    --input: 0 0% 26%; /* Neutral gray inputs */
+    --ring: 153 60% 53%; /* #3ECF8E */
+
+    --sidebar-background: 0 0% 12%; /* Slightly lighter black sidebar */
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 153 60% 53%; /* #3ECF8E */
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 0 0% 18%; /* Neutral gray sidebar accent */
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 26%; /* Neutral gray sidebar border */
+    --sidebar-ring: 153 60% 53%; /* #3ECF8E */
   }
 }
 
@@ -109,8 +146,8 @@
 
 /* Global thin scrollbar fallback for WebKit-based browsers (low specificity) */
 *::-webkit-scrollbar {
-  width: 3px;
-  height: 3px;
+  width: 6px;
+  height: 6px;
 }
 
 *::-webkit-scrollbar-track {
@@ -142,26 +179,14 @@
 }
 
 .table-scroll-container::-webkit-scrollbar-thumb {
-  background: #22c55e;
+  background: #3ecf8e;
   border-radius: 4px;
 }
-
 
 /* Firefox scrollbar styles */
 .table-scroll-container {
   scrollbar-width: thin;
   overflow: auto !important; /* ensure scrollbars are enabled */
-}
-
-@theme inline {
-  @keyframes ripple {
-  0%, 100% {
-    transform: translate(-50%, -50%) scale(1);
-    }
-  50% {
-    transform: translate(-50%, -50%) scale(0.9);
-    }
-  }
 }
 
 .animate-ping-once {
@@ -173,4 +198,3 @@
   60% { transform: scale(0.95); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
-
