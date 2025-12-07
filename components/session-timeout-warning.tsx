@@ -15,7 +15,7 @@ import { Progress } from "@/components/ui/progress"
 import { useSecurity } from "@/contexts/security-context"
 
 export function SessionTimeoutWarning() {
-  const { sessionTimeLeft, resetSessionTimer, logout } = useSecurity()
+  const { sessionTimeLeft, resetSessionTimer, logout, autoLockTimeout } = useSecurity()
   const [showWarning, setShowWarning] = useState(false)
 
   const WARNING_THRESHOLD = 10 * 1000 // Show warning 10 seconds before timeout
@@ -35,7 +35,10 @@ export function SessionTimeoutWarning() {
   }
 
   const getProgressValue = () => {
-    return Math.max(0, (sessionTimeLeft / WARNING_THRESHOLD) * 100)
+    // Calculate progress based on the warning period (last 10 seconds)
+    // When sessionTimeLeft === WARNING_THRESHOLD, progress is 100%
+    // When sessionTimeLeft === 0, progress is 0%
+    return Math.max(0, Math.min(100, (sessionTimeLeft / WARNING_THRESHOLD) * 100))
   }
 
   const handleExtendSession = () => {

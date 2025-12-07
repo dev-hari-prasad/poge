@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect, useCallback } from "react"
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react"
 import EncryptionService from "@/utils/encryption"
 
 interface SecurityContextType {
@@ -22,6 +22,8 @@ interface SecurityContextType {
   resetSessionTimer: () => void
   autoLockTimeout: number
   setAutoLockTimeout: (timeout: number) => void
+  lockOnRefresh: boolean
+  setLockOnRefresh: (value: boolean) => void
 }
 
 const SecurityContext = createContext<SecurityContextType | null>(null)
@@ -31,6 +33,8 @@ const STORAGE_KEYS = {
   THEME: "postgres-manager-theme",
   AUTO_LOCK_TIMEOUT: "postgres-manager-auto-lock-timeout",
   SETUP_COMPLETE: "postgres-manager-setup-complete",
+  LOCK_ON_REFRESH: "postgres-manager-lock-on-refresh",
+  PREFERENCES: "postgres-manager-preferences",
 }
 
 const DEFAULT_AUTO_LOCK_TIMEOUT = 60 * 60 * 1000 // 1 hour
@@ -43,7 +47,9 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<"light" | "dark" | "system">("system")
   const [sessionTimeLeft, setSessionTimeLeft] = useState(0)
   const [autoLockTimeout, setAutoLockTimeoutState] = useState(DEFAULT_AUTO_LOCK_TIMEOUT)
-  const [sessionTimer, setSessionTimer] = useState<NodeJS.Timeout | null>(null)
+  const [lockOnRefresh, setLockOnRefreshState] = useState(true)
+  // Use ref for session timer to avoid stale closure issues
+  const sessionTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Check if setup is complete on mount
   useEffect(() => {
@@ -54,10 +60,24 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
     console.log("Setting isFirstTimeSetup to:", !setupComplete || !pinHash)
     setIsFirstTimeSetup(!setupComplete || !pinHash)
 
-    // Load auto-lock timeout
+    // Load auto-lock timeout with validation
     const savedTimeout = localStorage.getItem(STORAGE_KEYS.AUTO_LOCK_TIMEOUT)
     if (savedTimeout) {
-      setAutoLockTimeoutState(Number.parseInt(savedTimeout))
+      const parsedTimeout = Number.parseInt(savedTimeout, 10)
+      // Validate: must be a valid number and either -1 (never), 0 (manual), or positive
+      if (!Number.isNaN(parsedTimeout) && (parsedTimeout === -1 || parsedTimeout >= 0)) {
+        setAutoLockTimeoutState(parsedTimeout)
+      } else {
+        // Invalid value, reset to default
+        console.warn("Invalid auto-lock timeout in localStorage, resetting to default")
+        localStorage.setItem(STORAGE_KEYS.AUTO_LOCK_TIMEOUT, DEFAULT_AUTO_LOCK_TIMEOUT.toString())
+      }
+    }
+
+    // Load lock on refresh setting
+    const savedLockOnRefresh = localStorage.getItem(STORAGE_KEYS.LOCK_ON_REFRESH)
+    if (savedLockOnRefresh !== null) {
+      setLockOnRefreshState(savedLockOnRefresh === "true")
     }
 
     // Load theme
@@ -76,20 +96,40 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
     applyTheme()
   }, [theme])
 
-  // Session timer management
+  // Lock on page refresh/close handler
+  useEffect(() => {
+    if (!isAuthenticated || !lockOnRefresh) return
+
+    const handleBeforeUnload = () => {
+      // When lock on refresh is enabled and user is authenticated,
+      // we mark the session as needing re-authentication on return
+      // This is done by NOT storing any session state
+      // The app will require PIN entry on next load
+      console.log("Page unloading with lock on refresh enabled")
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+    }
+  }, [isAuthenticated, lockOnRefresh])
+
+  // Session timer management - uses ref to avoid stale closure issues
   const startSessionTimer = useCallback(() => {
     console.log("Starting session timer with timeout:", autoLockTimeout)
     
-    // Clear existing timer
-    if (sessionTimer) {
+    // Clear existing timer using ref
+    if (sessionTimerRef.current) {
       console.log("Clearing existing session timer")
-      clearInterval(sessionTimer)
-      setSessionTimer(null)
+      clearInterval(sessionTimerRef.current)
+      sessionTimerRef.current = null
     }
 
     // Don't start timer if auto-lock is disabled or set to never
     if (autoLockTimeout === 0 || autoLockTimeout === -1) {
       console.log("Auto-lock disabled, not starting timer")
+      setSessionTimeLeft(0)
       return
     }
 
@@ -100,12 +140,10 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
         if (prev <= 1000) {
           // Session expired - clear the interval and lock the app once
           console.log("Session expired, locking and clearing timer")
-          try {
-            clearInterval(timer)
-          } catch {
-            // noop
+          if (sessionTimerRef.current) {
+            clearInterval(sessionTimerRef.current)
+            sessionTimerRef.current = null
           }
-          setSessionTimer(null)
           setIsAuthenticated(false)
           setCurrentPin("")
           return 0
@@ -114,9 +152,9 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
       })
     }, 1000)
 
-    setSessionTimer(timer)
+    sessionTimerRef.current = timer
     console.log("Session timer started")
-  }, [autoLockTimeout]) // Remove sessionTimer from dependencies to avoid circular updates
+  }, [autoLockTimeout])
 
   const resetSessionTimer = useCallback(() => {
     if (isAuthenticated) {
@@ -233,9 +271,9 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false)
     setCurrentPin("")
     setSessionTimeLeft(0)
-    if (sessionTimer) {
-      clearInterval(sessionTimer)
-      setSessionTimer(null)
+    if (sessionTimerRef.current) {
+      clearInterval(sessionTimerRef.current)
+      sessionTimerRef.current = null
     }
     console.log("Logout completed")
   }
@@ -311,11 +349,21 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
   }
 
   const setAutoLockTimeout = (timeout: number) => {
+    // Validate timeout value
+    if (Number.isNaN(timeout) || (timeout !== -1 && timeout < 0)) {
+      console.warn("Invalid auto-lock timeout value:", timeout)
+      return
+    }
     setAutoLockTimeoutState(timeout)
     localStorage.setItem(STORAGE_KEYS.AUTO_LOCK_TIMEOUT, timeout.toString())
     if (isAuthenticated) {
       startSessionTimer()
     }
+  }
+
+  const setLockOnRefresh = (value: boolean) => {
+    setLockOnRefreshState(value)
+    localStorage.setItem(STORAGE_KEYS.LOCK_ON_REFRESH, value.toString())
   }
 
   const encryptAndStore = async (key: string, data: any): Promise<void> => {
@@ -367,10 +415,11 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
       setIsFirstTimeSetup(true)
       setThemeState("system")
       setAutoLockTimeoutState(DEFAULT_AUTO_LOCK_TIMEOUT)
+      setLockOnRefreshState(true)
 
-      if (sessionTimer) {
-        clearInterval(sessionTimer)
-        setSessionTimer(null)
+      if (sessionTimerRef.current) {
+        clearInterval(sessionTimerRef.current)
+        sessionTimerRef.current = null
       }
 
       return true
@@ -411,6 +460,8 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
     resetSessionTimer,
     autoLockTimeout,
     setAutoLockTimeout,
+    lockOnRefresh,
+    setLockOnRefresh,
   }
 
   return <SecurityContext.Provider value={value}>{children}</SecurityContext.Provider>

@@ -29,8 +29,24 @@ interface SettingsProps {
   initialTab?: "general" | "security" | "appearance" | "data" | "about"
 }
 
+const PREFERENCES_STORAGE_KEY = "postgres-manager-preferences"
+
+interface Preferences {
+  defaultRowsPerPage: number
+  queryTimeout: number
+  autoSaveInterval: number
+  connectionTimeout: number
+}
+
+const DEFAULT_PREFERENCES: Preferences = {
+  defaultRowsPerPage: 50,
+  queryTimeout: 30,
+  autoSaveInterval: 5,
+  connectionTimeout: 10,
+}
+
 export function Settings({ initialTab = "general" }: SettingsProps) {
-  const { theme, setTheme, sessionTimeLeft, autoLockTimeout, setAutoLockTimeout, logout } = useSecurity()
+  const { theme, setTheme, sessionTimeLeft, autoLockTimeout, setAutoLockTimeout, lockOnRefresh, setLockOnRefresh, logout } = useSecurity()
   const { servers, addServer, updateServer, deleteServer } = useServerStorage()
   const { savedQueries, saveQuery, updateQuery, deleteQuery } = useSavedQueries()
   const { queryHistory, addToHistory, clearHistory } = useQueryHistory()
@@ -43,13 +59,44 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
   const [importPassword, setImportPassword] = useState("")
   const [isExporting, setIsExporting] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
-  const [preferences, setPreferences] = useState({
-    defaultRowsPerPage: 50,
-    queryTimeout: 30,
-    autoSaveInterval: 5,
-    connectionTimeout: 10,
-  })
-  const [lockOnRefresh, setLockOnRefresh] = useState(true)
+  const [preferences, setPreferences] = useState<Preferences>(DEFAULT_PREFERENCES)
+
+  // Load preferences from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedPreferences = localStorage.getItem(PREFERENCES_STORAGE_KEY)
+      if (savedPreferences) {
+        const parsed = JSON.parse(savedPreferences)
+        // Validate and merge with defaults to ensure all keys exist
+        setPreferences({
+          defaultRowsPerPage: parsed.defaultRowsPerPage ?? DEFAULT_PREFERENCES.defaultRowsPerPage,
+          queryTimeout: parsed.queryTimeout ?? DEFAULT_PREFERENCES.queryTimeout,
+          autoSaveInterval: parsed.autoSaveInterval ?? DEFAULT_PREFERENCES.autoSaveInterval,
+          connectionTimeout: parsed.connectionTimeout ?? DEFAULT_PREFERENCES.connectionTimeout,
+        })
+      }
+    } catch (error) {
+      console.error("Failed to load preferences:", error)
+    }
+  }, [])
+
+  const savePreferences = () => {
+    try {
+      localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences))
+      toast({
+        title: "Preferences Saved",
+        description: "Your preferences have been saved successfully.",
+        variant: "default",
+      })
+    } catch (error) {
+      console.error("Failed to save preferences:", error)
+      toast({
+        title: "Save Failed",
+        description: "Failed to save preferences. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   const formatSessionTime = (ms: number) => {
     if (ms <= 0) return "Session expired"
@@ -333,7 +380,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
                 </div>
 
                 <div className="flex justify-end mt-6">
-                  <Button className="bg-green-600 hover:bg-green-700">
+                  <Button className="bg-green-600 hover:bg-green-700" onClick={savePreferences}>
                     <Save className="h-4 w-4 mr-2" />
                     Save Preferences
                   </Button>
