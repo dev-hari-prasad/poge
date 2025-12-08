@@ -56,7 +56,7 @@ Poge includes built‑in export/import:
 If you discover a security issue, please open a private report or contact the maintainers.
 
 ## Contributing
-Pull requests are welcome. Keep changes small and focused, and prefer clear, straightforward code over cleverness. If you’re unsure or want to report a bug/feature, please open an issue here: https://github.com/the-not-boring/poge-pg/issues
+Pull requests are welcome. Keep changes small and focused, and prefer clear, straightforward code over cleverness. If you’re unsure or want to report a bug/feature, please open an issue here on: [Github Issues](https://github.com/dev-hari-prasad/poge/issues)
 
 ## Roadmap (short and sweet)
 - Smoother table editing flows
