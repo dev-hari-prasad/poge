@@ -66,4 +66,4 @@ MIT — do what you like, be kind, and don’t remove credit.
 
 ---
 
-<p align="center"><sub>Built by Engineers at <a href="http://notboring.in/">Not Boring</a></sub></p>
+<p align="center"><sub>Built by <a href="https://github.com/dev-hari-prasad/">Hari</a></sub></p>
