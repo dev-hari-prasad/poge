@@ -3,6 +3,7 @@ import Script from 'next/script'
 import './globals.css'
 import { SecurityProvider } from '@/contexts/security-context'
 import { FeatureBaseScript } from '@/components/featurebase-script'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata: Metadata = {
   title: 'Poge - Modern PostgreSQL Database Management Tool | Database GUI & Admin',
@@ -206,6 +207,8 @@ html {
             }
           `}
         </Script>
+
+        <Analytics />
       </body>
     </html>
   )
