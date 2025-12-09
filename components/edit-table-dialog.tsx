@@ -26,7 +26,14 @@ export function EditTableDialog({ open, onOpenChange, tableName, results, select
   useEffect(() => {
     if (open && results.length > 0 && results[0].type === "select") {
       // Deep clone the data for editing
-      setEditingData(JSON.parse(JSON.stringify(results[0].rows || [])))
+      const rows = results[0].rows || []
+      setEditingData(JSON.parse(JSON.stringify(rows)))
+      // Reset selected rows when dialog opens - select all by default for easier editing
+      setSelectedRows(Array.from({ length: rows.length }, (_, i) => i))
+    } else if (!open) {
+      // Reset state when dialog closes
+      setEditingData([])
+      setSelectedRows([])
     }
   }, [open, results])
 
@@ -60,7 +67,7 @@ export function EditTableDialog({ open, onOpenChange, tableName, results, select
   }
 
   const handleSelectAll = () => {
-    const rowCount = results[0].rows?.length || 0
+    const rowCount = editingData.length
     if (selectedRows.length === rowCount) {
       setSelectedRows([])
     } else {
@@ -100,21 +107,43 @@ export function EditTableDialog({ open, onOpenChange, tableName, results, select
         Object.keys(row).forEach(column => {
           if (row[column] !== originalRow[column]) {
             const value = row[column]
-            const escapedValue = typeof value === "string" 
-              ? `'${value.replace(/'/g, "''")}'` 
-              : (value === null || value === undefined ? "NULL" : String(value))
-            changes.push(`${column} = ${escapedValue}`)
+            let escapedValue: string
+            
+            // Handle null, undefined, or empty string as NULL
+            if (value === null || value === undefined || value === "") {
+              escapedValue = "NULL"
+            } else if (typeof value === "string") {
+              escapedValue = `'${value.replace(/'/g, "''")}'`
+            } else if (typeof value === "number" || typeof value === "boolean") {
+              escapedValue = String(value)
+            } else {
+              // For any other type (objects, String objects, etc.), convert to string safely
+              const strValue = String(value)
+              escapedValue = strValue === "" ? "NULL" : `'${strValue.replace(/'/g, "''")}'`
+            }
+            
+            changes.push(`"${column}" = ${escapedValue}`)
           }
         })
 
         if (changes.length > 0) {
           // Use the first column as primary key (simplified approach)
           const primaryKey = Object.keys(row)[0]
-          const primaryValue = typeof originalRow[primaryKey] === "string"
-            ? `'${originalRow[primaryKey].replace(/'/g, "''")}'`
-            : String(originalRow[primaryKey])
+          const pkValue = originalRow[primaryKey]
+          let primaryValue: string
           
-          return `UPDATE ${tableName} SET ${changes.join(", ")} WHERE ${primaryKey} = ${primaryValue}`
+          if (pkValue === null || pkValue === undefined) {
+            primaryValue = "NULL"
+          } else if (typeof pkValue === "string") {
+            primaryValue = `'${pkValue.replace(/'/g, "''")}'`
+          } else {
+            primaryValue = String(pkValue)
+          }
+          
+          // Quote table name and column names for PostgreSQL compatibility
+          const quotedTable = tableName.includes('"') ? tableName : tableName.split('.').map(p => `"${p}"`).join('.')
+          
+          return `UPDATE ${quotedTable} SET ${changes.join(", ")} WHERE "${primaryKey}" = ${primaryValue}`
         }
         return null
       }).filter(Boolean)
@@ -189,7 +218,7 @@ export function EditTableDialog({ open, onOpenChange, tableName, results, select
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[80vw] w-[80vw] max-h-[90vh] overflow-hidden flex flex-col" style={{ marginTop: '-5vh' }}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Edit className="h-5 w-5" />
@@ -200,9 +229,9 @@ export function EditTableDialog({ open, onOpenChange, tableName, results, select
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+          <div className="space-y-4 flex-shrink-0">
+            <div className="flex justify-between items-center mb-3">
               <Label>Table Data ({editingData.length} rows)</Label>
               <div className="flex gap-2">
                 <Button 
@@ -218,12 +247,14 @@ export function EditTableDialog({ open, onOpenChange, tableName, results, select
                 </Button>
               </div>
             </div>
+          </div>
 
-            <div className="border rounded-md overflow-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50">
+          <div className="flex-1 overflow-auto border rounded-md min-h-0">
+            <div className="inline-block min-w-full">
+              <table className="w-full text-sm border-collapse">
+                <thead className="bg-muted/50 sticky top-0 z-10">
                   <tr>
-                    <th className="p-2 text-left font-medium w-12">
+                    <th className="p-2 text-left font-medium w-12 bg-muted/50">
                       <input
                         type="checkbox"
                         checked={selectedRows.length === editingData.length && editingData.length > 0}
@@ -232,11 +263,11 @@ export function EditTableDialog({ open, onOpenChange, tableName, results, select
                       />
                     </th>
                     {columns.map((column) => (
-                      <th key={column} className="p-2 text-left font-medium">
+                      <th key={column} className="p-2 text-left font-medium bg-muted/50 whitespace-nowrap min-w-[150px]">
                         {column}
                       </th>
                     ))}
-                    <th className="p-2 text-left font-medium w-16">Actions</th>
+                    <th className="p-2 text-left font-medium w-16 bg-muted/50">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -251,11 +282,11 @@ export function EditTableDialog({ open, onOpenChange, tableName, results, select
                         />
                       </td>
                       {columns.map((column) => (
-                        <td key={column} className="p-2">
+                        <td key={column} className="p-2 whitespace-nowrap">
                           <Input
                             value={row[column] || ""}
                             onChange={(e) => handleCellEdit(rowIndex, column, e.target.value)}
-                            className="h-8 text-xs"
+                            className="h-8 text-xs min-w-[140px]"
                             disabled={!selectedRows.includes(rowIndex)}
                           />
                         </td>
@@ -275,13 +306,13 @@ export function EditTableDialog({ open, onOpenChange, tableName, results, select
                 </tbody>
               </table>
             </div>
-
-            {selectedRows.length > 0 && (
-              <div className="text-sm text-muted-foreground">
-                {selectedRows.length} row(s) selected for editing
-              </div>
-            )}
           </div>
+
+          {selectedRows.length > 0 && (
+            <div className="text-sm text-muted-foreground mt-2 flex-shrink-0">
+              {selectedRows.length} row(s) selected for editing
+            </div>
+          )}
         </div>
 
         <DialogFooter>

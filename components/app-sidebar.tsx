@@ -232,15 +232,15 @@ export function AppSidebar({ currentView, onViewChange }: AppSidebarProps) {
                 <SidebarMenuButton
                   asChild
                   className="text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                  tooltip="Feedback"
+                  tooltip="Report Issue"
                 >
                   <button
-                    onClick={() => window.open("https://pogepg.featurebase.app/", "_blank")}
+                    onClick={() => window.open("https://github.com/dev-hari-prasad/poge/issues", "_blank")}
                   >
                     <QuestionMarkCircleIcon className="h-5 w-5" />
                     {!isCollapsed && (
                       <span className="flex items-center gap-1">
-                        Feedback
+                        Report Issue
                       </span>
                     )}
                   </button>

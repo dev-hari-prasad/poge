@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Save, Download, FileText, Database, Table, Braces } from "lucide-react"
 import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
@@ -23,8 +23,15 @@ export function SaveTableDialog({ open, onOpenChange, tableName, results }: Save
   const [fileName, setFileName] = useState(tableName)
   const [format, setFormat] = useState<"csv" | "json" | "sql" | "excel">("csv")
 
+  // Update fileName when tableName changes or dialog opens
+  useEffect(() => {
+    if (open && tableName) {
+      setFileName(tableName.replace(/\./g, '_'))
+    }
+  }, [open, tableName])
+
   const handleSave = () => {
-    if (!results.length || results[0].type !== "select") {
+    if (!results || !results.length || results[0].type !== "select") {
       toast({
         title: "No Data to Save",
         description: "Please execute a SELECT query first to download table data.",
@@ -36,6 +43,24 @@ export function SaveTableDialog({ open, onOpenChange, tableName, results }: Save
     const result = results[0]
     const data = result.rows || []
     const columns = result.columns || []
+
+    if (data.length === 0) {
+      toast({
+        title: "No Data to Export",
+        description: "The query returned no rows to export.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (columns.length === 0) {
+      toast({
+        title: "No Columns",
+        description: "Could not determine column structure for export.",
+        variant: "destructive",
+      })
+      return
+    }
 
     let content = ""
     let mimeType = ""

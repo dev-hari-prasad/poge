@@ -80,6 +80,11 @@ export function QueryTool() {
   const [showSaveTableDialog, setShowSaveTableDialog] = useState(false)
   const [showEditTableDialog, setShowEditTableDialog] = useState(false)
   const [showDeleteTableDialog, setShowDeleteTableDialog] = useState(false)
+  const [showAddRowDialog, setShowAddRowDialog] = useState(false)
+  const [showAddColumnDialog, setShowAddColumnDialog] = useState(false)
+  const [addRowValues, setAddRowValues] = useState<Record<string, string>>({})
+  const [addColumnForm, setAddColumnForm] = useState<{ name: string; type: string; length?: number; notNull: boolean; defaultValue?: string }>({ name: "", type: "varchar", length: undefined, notNull: false, defaultValue: undefined })
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentEditorContent, setCurrentEditorContent] = useState<string>("")
   const [layoutMode, setLayoutMode] = useState<"default" | "alt">(() => {
     try {
@@ -404,7 +409,10 @@ export function QueryTool() {
 
   // Handle save table operation
   const handleSaveTable = () => {
-    if (!activeTab) {
+    // Use currentEditorContent which is kept in sync with the editor via onContentChange
+    const queryContent = currentEditorContent || activeTab?.content || ""
+    
+    if (!queryContent.trim()) {
       toast({
         title: "No Active Query",
         description: "Please write a query first to save table data.",
@@ -413,7 +421,7 @@ export function QueryTool() {
       return
     }
 
-    const tableName = extractTableNameFromQuery(activeTab.content)
+    const tableName = extractTableNameFromQuery(queryContent)
     if (!tableName) {
       toast({
         title: "No Table Identified",
@@ -429,11 +437,10 @@ export function QueryTool() {
 
   // Handle edit table operation
   const handleEditTable = () => {
-    console.log("handleEditTable called")
-    console.log("activeTab:", activeTab)
-    console.log("activeTab.content:", activeTab?.content)
+    // Use currentEditorContent which is kept in sync with the editor via onContentChange
+    const queryContent = currentEditorContent || activeTab?.content || ""
     
-    if (!activeTab) {
+    if (!queryContent.trim()) {
       toast({
         title: "No Active Query",
         description: "Please write a query first to edit table data.",
@@ -442,8 +449,7 @@ export function QueryTool() {
       return
     }
 
-    const tableName = extractTableNameFromQuery(activeTab.content)
-    console.log("extracted table name from activeTab.content:", tableName)
+    const tableName = extractTableNameFromQuery(queryContent)
     
     if (!tableName) {
       toast({
@@ -454,14 +460,16 @@ export function QueryTool() {
       return
     }
 
-    console.log("Setting currentTableName to:", tableName)
     setCurrentTableName(tableName)
     setShowEditTableDialog(true)
   }
 
   // Handle delete table operation
   const handleDeleteTable = () => {
-    if (!activeTab) {
+    // Use currentEditorContent which is kept in sync with the editor via onContentChange
+    const queryContent = currentEditorContent || activeTab?.content || ""
+    
+    if (!queryContent.trim()) {
       toast({
         title: "No Active Query",
         description: "Please write a query first to delete table data.",
@@ -470,7 +478,7 @@ export function QueryTool() {
       return
     }
 
-    const tableName = extractTableNameFromQuery(activeTab.content)
+    const tableName = extractTableNameFromQuery(queryContent)
     if (!tableName) {
       toast({
         title: "No Table Identified",
@@ -482,6 +490,171 @@ export function QueryTool() {
 
     setCurrentTableName(tableName)
     setShowDeleteTableDialog(true)
+  }
+
+  // Handle add row operation
+  const handleAddRow = () => {
+    const queryContent = currentEditorContent || activeTab?.content || ""
+    
+    if (!queryContent.trim()) {
+      toast({
+        title: "No Active Query",
+        description: "Please write a query first to add rows.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const tableName = extractTableNameFromQuery(queryContent)
+    if (!tableName) {
+      toast({
+        title: "No Table Identified",
+        description: "Could not identify table name from the current query.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Initialize row values from current result columns
+    if (currentTabResults.length > 0 && currentTabResults[0]?.columns) {
+      const init: Record<string, string> = {}
+      currentTabResults[0].columns.forEach((col) => (init[col] = ""))
+      setAddRowValues(init)
+    }
+
+    setCurrentTableName(tableName)
+    setShowAddRowDialog(true)
+  }
+
+  // Handle add column operation
+  const handleAddColumn = () => {
+    const queryContent = currentEditorContent || activeTab?.content || ""
+    
+    if (!queryContent.trim()) {
+      toast({
+        title: "No Active Query",
+        description: "Please write a query first to add columns.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const tableName = extractTableNameFromQuery(queryContent)
+    if (!tableName) {
+      toast({
+        title: "No Table Identified",
+        description: "Could not identify table name from the current query.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setAddColumnForm({ name: "", type: "varchar", length: undefined, notNull: false, defaultValue: undefined })
+    setCurrentTableName(tableName)
+    setShowAddColumnDialog(true)
+  }
+
+  // Submit add row
+  const submitAddRow = async () => {
+    if (!selectedServer || !currentTableName) return
+    
+    const columns = Object.keys(addRowValues)
+    const values = columns.map((col) => {
+      const value = addRowValues[col]
+      if (value === null || value === undefined || value === "") return "NULL"
+      if (!isNaN(Number(value)) && value.trim() !== "") return String(Number(value))
+      const escaped = String(value).replace(/'/g, "''")
+      return `'${escaped}'`
+    })
+    
+    const quotedTable = currentTableName.includes('"') ? currentTableName : currentTableName.split('.').map(p => `"${p}"`).join('.')
+    const sql = `INSERT INTO ${quotedTable} (${columns.map((c) => `"${c}"`).join(", ")}) VALUES (${values.join(", ")})`
+    
+    try {
+      setIsSubmitting(true)
+      const res = await fetch('/api/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          host: selectedServer.host,
+          port: selectedServer.port,
+          user: selectedServer.username,
+          password: selectedServer.password,
+          database: selectedServer.database,
+          sql,
+          sslMode: selectedServer.sslMode,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || data?.error) throw new Error(data?.error || 'Insert failed')
+      
+      toast({
+        title: "Row Added",
+        description: `Successfully added row to ${currentTableName}.`,
+      })
+      setShowAddRowDialog(false)
+      // Re-run query to refresh results
+      executeQuery()
+    } catch (error) {
+      toast({
+        title: "Insert Failed",
+        description: error instanceof Error ? error.message : "Failed to add row.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Submit add column
+  const submitAddColumn = async () => {
+    if (!selectedServer || !currentTableName || !addColumnForm.name.trim()) return
+    
+    const typeWithLen = addColumnForm.length ? `${addColumnForm.type}(${addColumnForm.length})` : addColumnForm.type
+    const quotedTable = currentTableName.includes('"') ? currentTableName : currentTableName.split('.').map(p => `"${p}"`).join('.')
+    
+    let sql = `ALTER TABLE ${quotedTable} ADD COLUMN "${addColumnForm.name}" ${typeWithLen}`
+    if (addColumnForm.notNull) sql += ' NOT NULL'
+    if (addColumnForm.defaultValue && addColumnForm.defaultValue.trim() !== '') {
+      const defVal = addColumnForm.defaultValue
+      const escaped = defVal === "NULL" ? "NULL" : (isNaN(Number(defVal)) ? `'${defVal.replace(/'/g, "''")}'` : defVal)
+      sql += ` DEFAULT ${escaped}`
+    }
+    
+    try {
+      setIsSubmitting(true)
+      const res = await fetch('/api/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          host: selectedServer.host,
+          port: selectedServer.port,
+          user: selectedServer.username,
+          password: selectedServer.password,
+          database: selectedServer.database,
+          sql,
+          sslMode: selectedServer.sslMode,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || data?.error) throw new Error(data?.error || 'Add column failed')
+      
+      toast({
+        title: "Column Added",
+        description: `Successfully added column "${addColumnForm.name}" to ${currentTableName}.`,
+      })
+      setShowAddColumnDialog(false)
+      // Re-run query to refresh results
+      executeQuery()
+    } catch (error) {
+      toast({
+        title: "Add Column Failed",
+        description: error instanceof Error ? error.message : "Failed to add column.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // Helper functions for expanded view
@@ -704,14 +877,14 @@ export function QueryTool() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40">
                     <DropdownMenuItem 
-                      onClick={() => toast({ title: 'Add Row', description: 'Open row dialog from query tool' })}
+                      onClick={handleAddRow}
                       disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                     >
                       <PlusIcon className="h-4 w-4 mr-2" />
                       Add Row
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => toast({ title: 'Add Column', description: 'Open column dialog from query tool' })}
+                      onClick={handleAddColumn}
                       disabled={!(currentTabResults.length > 0 && currentTabResults[0]?.type === "select")}
                     >
                       <ViewColumnsIcon className="h-4 w-4 mr-2" />
@@ -946,6 +1119,113 @@ export function QueryTool() {
         results={currentTabResults}
         selectedServer={selectedServer}
       />
+
+      {/* Add Row Dialog */}
+      <Dialog open={showAddRowDialog} onOpenChange={setShowAddRowDialog}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Row</DialogTitle>
+            <DialogDescription>Insert a new row into {currentTableName}.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-5">
+            {Object.keys(addRowValues).length === 0 ? (
+              <div className="text-sm text-muted-foreground">No columns found. Run a SELECT query first.</div>
+            ) : (
+              Object.keys(addRowValues).map((col) => (
+                <div key={col} className="grid gap-1">
+                  <label className="text-sm font-medium">{col}</label>
+                  <input
+                    type="text"
+                    value={addRowValues[col] ?? ''}
+                    onChange={(e) => setAddRowValues((prev) => ({ ...prev, [col]: e.target.value }))}
+                    placeholder="Leave blank for NULL"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  />
+                </div>
+              ))
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddRowDialog(false)}>Cancel</Button>
+            <Button onClick={submitAddRow} disabled={isSubmitting || !selectedServer || Object.keys(addRowValues).length === 0}>
+              <PlusIcon className="h-4 w-4 mr-2" />
+              {isSubmitting ? 'Adding…' : 'Add Row'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Column Dialog */}
+      <Dialog open={showAddColumnDialog} onOpenChange={setShowAddColumnDialog}>
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>Add Column</DialogTitle>
+            <DialogDescription>Add a new column to {currentTableName}.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-5">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Column Name</label>
+              <input
+                type="text"
+                value={addColumnForm.name}
+                onChange={(e) => setAddColumnForm((p) => ({ ...p, name: e.target.value }))}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Data Type</label>
+                <Select value={addColumnForm.type} onValueChange={(v) => setAddColumnForm((p) => ({ ...p, type: v }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {['integer','bigint','numeric','varchar','text','boolean','timestamp','date','uuid','json','jsonb'].map((t) => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Length (optional)</label>
+                <input
+                  type="number"
+                  value={addColumnForm.length ?? ''}
+                  onChange={(e) => setAddColumnForm((p) => ({ ...p, length: e.target.value ? Number(e.target.value) : undefined }))}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Default (optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. 0, 'text', TRUE"
+                value={addColumnForm.defaultValue ?? ''}
+                onChange={(e) => setAddColumnForm((p) => ({ ...p, defaultValue: e.target.value }))}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="notnull-query"
+                checked={addColumnForm.notNull}
+                onChange={(e) => setAddColumnForm((p) => ({ ...p, notNull: e.target.checked }))}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <label htmlFor="notnull-query" className="text-sm font-medium">NOT NULL</label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddColumnDialog(false)}>Cancel</Button>
+            <Button onClick={submitAddColumn} disabled={isSubmitting || !addColumnForm.name.trim() || !selectedServer}>
+              <ViewColumnsIcon className="h-4 w-4 mr-2" />
+              {isSubmitting ? 'Adding…' : 'Add Column'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Expanded View Dialog */}
       <Dialog open={expandedResult.open} onOpenChange={(open) => setExpandedResult({...expandedResult, open})}>

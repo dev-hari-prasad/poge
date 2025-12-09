@@ -11,8 +11,49 @@ import type { QueryTab } from "@/types/query"
  * - Allows locking tabs to prevent accidental closure
  * - Maintains active tab state across sessions
  * - Auto-saves tab content and modifications
+ * - Syncs state across multiple component instances via events
  */
 const STORAGE_KEY = "postgres-manager-query-tabs"
+const TABS_UPDATED_EVENT = "query-tabs-updated"
+
+// Helper to load tabs from localStorage
+function loadTabsFromStorage(): { tabs: QueryTab[], activeTabId: string } {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
+      const parsedData = JSON.parse(stored) as { tabs?: unknown; activeTabId?: unknown }
+      const loadedTabsRaw: Partial<QueryTab>[] = Array.isArray(parsedData.tabs)
+        ? (parsedData.tabs as Partial<QueryTab>[])
+        : []
+      const loadedActiveId: string = typeof parsedData.activeTabId === 'string' ? parsedData.activeTabId : ""
+      
+      if (loadedTabsRaw.length > 0) {
+        const validatedTabs: QueryTab[] = loadedTabsRaw.map((tab) => ({
+          id: typeof tab.id === 'string' ? tab.id : crypto.randomUUID(),
+          name: typeof tab.name === 'string' ? tab.name : 'Query 1',
+          content: typeof tab.content === 'string' ? tab.content : "-- Write your SQL query here\n",
+          locked: typeof tab.locked === 'boolean' ? tab.locked : false,
+          isModified: typeof tab.isModified === 'boolean' ? tab.isModified : false,
+          serverId: typeof tab.serverId === 'string' ? tab.serverId : undefined,
+          database: typeof tab.database === 'string' ? tab.database : undefined,
+        }))
+        return { tabs: validatedTabs, activeTabId: loadedActiveId || validatedTabs[0].id }
+      }
+    }
+  } catch (error) {
+    console.error("Failed to load query tabs from localStorage:", error)
+  }
+  
+  // Return default tab
+  const defaultTab: QueryTab = {
+    id: "default",
+    name: "Query 1",
+    content: "-- Write your SQL query here\n",
+    isModified: false,
+    locked: false,
+  }
+  return { tabs: [defaultTab], activeTabId: defaultTab.id }
+}
 
 export function useQueryTabs() {
   const [tabs, setTabs] = useState<QueryTab[]>([])
@@ -20,84 +61,44 @@ export function useQueryTabs() {
 
   // Load tabs from localStorage on mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsedData = JSON.parse(stored) as { tabs?: unknown; activeTabId?: unknown }
-        const loadedTabsRaw: Partial<QueryTab>[] = Array.isArray(parsedData.tabs)
-          ? (parsedData.tabs as Partial<QueryTab>[])
-          : []
-        const loadedActiveId: string = typeof parsedData.activeTabId === 'string' ? parsedData.activeTabId : ""
-        
-        if (loadedTabsRaw.length > 0) {
-          // Ensure all tabs have proper content as strings and required fields
-          const validatedTabs: QueryTab[] = loadedTabsRaw.map((tab) => ({
-            id: typeof tab.id === 'string' ? tab.id : crypto.randomUUID(),
-            name: typeof tab.name === 'string' ? tab.name : 'Query 1',
-            content: typeof tab.content === 'string' ? tab.content : "-- Write your SQL query here\n",
-            locked: typeof tab.locked === 'boolean' ? tab.locked : false,
-            isModified: typeof tab.isModified === 'boolean' ? tab.isModified : false,
-            serverId: typeof tab.serverId === 'string' ? tab.serverId : undefined,
-            database: typeof tab.database === 'string' ? tab.database : undefined,
-          }))
-          setTabs(validatedTabs)
-          setActiveTabId(loadedActiveId || validatedTabs[0].id)
-        } else {
-          // Create default tab if no stored tabs
-          const defaultTab: QueryTab = {
-            id: "default",
-            name: "Query 1",
-            content: "-- Write your SQL query here\n",
-            isModified: false,
-            locked: false,
-          }
-          setTabs([defaultTab])
-          setActiveTabId(defaultTab.id)
-        }
-      } else {
-        // Create default tab if no stored data
-        const defaultTab: QueryTab = {
-          id: "default",
-          name: "Query 1",
-          content: "-- Write your SQL query here\n",
-          isModified: false,
-          locked: false,
-        }
-        setTabs([defaultTab])
-        setActiveTabId(defaultTab.id)
-      }
-    } catch (error) {
-      console.error("Failed to load query tabs from localStorage:", error)
-      // Create default tab on error
-      const defaultTab: QueryTab = {
-        id: "default",
-        name: "Query 1",
-        content: "-- Write your SQL query here\n",
-        isModified: false,
-        locked: false,
-      }
-      setTabs([defaultTab])
-      setActiveTabId(defaultTab.id)
-    }
+    const { tabs: loadedTabs, activeTabId: loadedActiveId } = loadTabsFromStorage()
+    setTabs(loadedTabs)
+    setActiveTabId(loadedActiveId)
   }, [])
 
-  // Save tabs to localStorage whenever tabs or activeTabId change
-  const saveTabs = useCallback((newTabs: QueryTab[], newActiveId: string) => {
+  // Listen for updates from other components
+  useEffect(() => {
+    const handleTabsUpdated = () => {
+      const { tabs: loadedTabs, activeTabId: loadedActiveId } = loadTabsFromStorage()
+      setTabs(loadedTabs)
+      setActiveTabId(loadedActiveId)
+    }
+    
+    window.addEventListener(TABS_UPDATED_EVENT, handleTabsUpdated)
+    return () => window.removeEventListener(TABS_UPDATED_EVENT, handleTabsUpdated)
+  }, [])
+
+  // Save tabs to localStorage and notify other components
+  const saveTabs = useCallback((newTabs: QueryTab[], newActiveId: string, notifyOthers = true) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         tabs: newTabs,
         activeTabId: newActiveId,
       }))
+      // Notify other components about the update
+      if (notifyOthers) {
+        window.dispatchEvent(new CustomEvent(TABS_UPDATED_EVENT))
+      }
     } catch (error) {
       console.error("Failed to save query tabs to localStorage:", error)
     }
   }, [])
 
   // Update state and save to localStorage
-  const updateTabsAndSave = useCallback((newTabs: QueryTab[], newActiveId: string) => {
+  const updateTabsAndSave = useCallback((newTabs: QueryTab[], newActiveId: string, notifyOthers = true) => {
     setTabs(newTabs)
     setActiveTabId(newActiveId)
-    saveTabs(newTabs, newActiveId)
+    saveTabs(newTabs, newActiveId, notifyOthers)
   }, [saveTabs])
 
   const createTab = useCallback((content?: string) => {
