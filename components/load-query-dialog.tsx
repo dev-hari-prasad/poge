@@ -2,8 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { Trash2, Calendar, Pencil } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Trash2, Calendar, FolderOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useQueryTabs } from "@/hooks/use-query-tabs"
 import { useSavedQueries } from "@/hooks/use-saved-queries"
+import { useToast } from "@/hooks/use-toast"
 
 interface LoadQueryDialogProps {
   open: boolean
@@ -19,10 +20,18 @@ interface LoadQueryDialogProps {
 
 export function LoadQueryDialog({ open, onOpenChange }: LoadQueryDialogProps) {
   const [searchTerm, setSearchTerm] = useState("")
-  const { updateTab, getActiveTab } = useQueryTabs()
-  const { savedQueries, deleteQuery, updateQuery } = useSavedQueries()
+  const { updateTab, getActiveTab, activeTabId } = useQueryTabs()
+  const { savedQueries, deleteQuery, refresh } = useSavedQueries()
+  const { toast } = useToast()
 
   const activeTab = getActiveTab()
+
+  // Refresh queries when dialog opens
+  useEffect(() => {
+    if (open) {
+      refresh()
+    }
+  }, [open, refresh])
 
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const filteredQueries = savedQueries
@@ -32,31 +41,37 @@ export function LoadQueryDialog({ open, onOpenChange }: LoadQueryDialogProps) {
     )
     .filter((q) => (categoryFilter === "all" ? true : q.category === categoryFilter))
 
-  const loadQuery = (content: string) => {
-    if (activeTab) {
-      updateTab(activeTab.id, { content })
+  const loadQuery = (content: string, queryName: string) => {
+    if (activeTab && activeTabId) {
+      // Update the tab content
+      updateTab(activeTabId, { content, isModified: true })
+      
+      toast({
+        title: "Query Loaded",
+        description: `"${queryName}" has been loaded into the editor.`,
+      })
+      
       onOpenChange(false)
+    } else {
+      toast({
+        title: "No Active Tab",
+        description: "Please open a query tab first.",
+        variant: "destructive",
+      })
     }
   }
 
-  const handleDelete = (queryId: string, e: React.MouseEvent) => {
+  const handleDelete = (queryId: string, queryName: string, e: React.MouseEvent) => {
     e.stopPropagation()
+    e.preventDefault()
     deleteQuery(queryId)
+    toast({
+      title: "Query Deleted",
+      description: `"${queryName}" has been deleted.`,
+    })
   }
 
-  const handleRename = (queryId: string, newName: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    const q = savedQueries.find((s) => s.id === queryId)
-    if (!q || !newName.trim()) return
-    updateQuery(queryId, newName.trim(), q.content, q.category)
-  }
 
-  const handleChangeCategory = (queryId: string, newCat: "select" | "insert" | "update" | "delete", e: React.MouseEvent) => {
-    e.stopPropagation()
-    const q = savedQueries.find((s) => s.id === queryId)
-    if (!q) return
-    updateQuery(queryId, q.name, q.content, newCat)
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -93,8 +108,7 @@ export function LoadQueryDialog({ open, onOpenChange }: LoadQueryDialogProps) {
                 filteredQueries.map((query) => (
                   <div
                     key={query.id}
-                    className="border rounded-lg p-3 hover:bg-muted/50 cursor-pointer group"
-                    onClick={() => loadQuery(query.content)}
+                    className="border rounded-lg p-3 hover:bg-muted/50 group relative pr-20"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
@@ -111,19 +125,32 @@ export function LoadQueryDialog({ open, onOpenChange }: LoadQueryDialogProps) {
                           {query.content.length > 150 && "..."}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100">
-                        <InlineRename queryId={query.id} initialName={query.name} onRename={handleRename} />
-                        <InlineCategory queryId={query.id} initialCategory={query.category} onChangeCategory={handleChangeCategory} />
+                      {/* Delete button positioned at top right, visible only on hover */}
+                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={(e) => handleDelete(query.id, e)}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 p-0"
+                          onClick={(e) => handleDelete(query.id, query.name, e)}
+                          title="Delete query"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
+                    {/* Load button positioned at bottom right, visible only on hover */}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity border-primary bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        loadQuery(query.content, query.name)
+                      }}
+                    >
+                      <FolderOpen className="h-4 w-4 mr-1" />
+                      Load
+                    </Button>
                   </div>
                 ))
               )}
@@ -135,35 +162,4 @@ export function LoadQueryDialog({ open, onOpenChange }: LoadQueryDialogProps) {
   )
 }
 
-function InlineRename({ queryId, initialName, onRename }: { queryId: string; initialName: string; onRename: (id: string, newName: string, e: React.MouseEvent) => void }) {
-  const [editing, setEditing] = useState(false)
-  const [value, setValue] = useState(initialName)
-  return editing ? (
-    <div className="flex items-center gap-1">
-      <Input value={value} onChange={(e) => setValue(e.target.value)} className="h-7 w-40 text-xs" />
-      <Button size="sm" variant="outline" className="h-7 px-2" onClick={(e) => { onRename(queryId, value, e); setEditing(false) }}>Save</Button>
-      <Button size="sm" variant="ghost" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); setEditing(false); setValue(initialName) }}>Cancel</Button>
-    </div>
-  ) : (
-    <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={(e) => { e.stopPropagation(); setEditing(true) }}>
-      <Pencil className="h-4 w-4" />
-    </Button>
-  )
-}
 
-function InlineCategory({ queryId, initialCategory, onChangeCategory }: { queryId: string; initialCategory?: "select" | "insert" | "update" | "delete"; onChangeCategory: (id: string, cat: any, e: React.MouseEvent) => void }) {
-  return (
-    <Select defaultValue={initialCategory} onValueChange={() => {}}>
-      <SelectTrigger className="h-7 w-28 text-xs" onClick={(e) => e.stopPropagation()}>
-        <SelectValue placeholder="Category" />
-      </SelectTrigger>
-      <SelectContent onClick={(e) => e.stopPropagation()}>
-        {(["select", "insert", "update", "delete"] as const).map((c) => (
-          <SelectItem key={c} value={c} onClick={(e) => onChangeCategory(queryId, c, e)}>
-            {c}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
-}

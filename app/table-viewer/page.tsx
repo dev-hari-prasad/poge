@@ -2,7 +2,7 @@
 
 import { useSecurity } from "@/contexts/security-context"
 import { PostgresManager } from "@/components/postgres-manager"
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/sonner"
 import { FirstTimeSetup } from "@/components/first-time-setup"
 import { PinEntry } from "@/components/pin-entry"
 import { usePageTitle } from "@/hooks/use-page-title"

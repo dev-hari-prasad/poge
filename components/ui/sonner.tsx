@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
@@ -7,6 +8,24 @@ type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
+
+  React.useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      [data-sonner-toaster] *,
+      [data-sonner-toaster] .sonner-toast,
+      [data-sonner-toaster] .sonner-toast *,
+      [data-sonner-toaster] .sonner-toast-title,
+      [data-sonner-toaster] .sonner-toast-description,
+      [data-sonner-toaster] button {
+        font-family: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
 
   return (
     <Sonner
