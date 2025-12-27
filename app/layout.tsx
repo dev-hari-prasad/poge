@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import { SecurityProvider } from '@/contexts/security-context'
-import { FeatureBaseScript } from '@/components/featurebase-script'
 import { Analytics } from '@vercel/analytics/next'
 
 export const metadata: Metadata = {
@@ -164,9 +163,6 @@ html {
   --font-serif: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Consolas', 'Courier New', monospace;
 }
         `}</style>
-
-        {/* FeatureBase Widget */}
-        <FeatureBaseScript />
       </head>
       <body>
         <SecurityProvider>
