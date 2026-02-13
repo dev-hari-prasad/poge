@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { VirtualTable, SimpleTable } from "@/components/virtual-table"
+import { DestructiveQueryDialog } from "@/components/destructive-query-dialog"
 import { useToast } from "@/hooks/use-toast"
 import type { QueryResult } from "@/types/query"
 import { format } from "date-fns"
@@ -95,6 +96,7 @@ export function QueryResults({ results, isExecuting, onRefresh, onSaveTable, onE
   const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null)
   const [editedRowValues, setEditedRowValues] = useState<Record<string, any>>({})
   const [isRowSaving, setIsRowSaving] = useState(false)
+  const [rowToDelete, setRowToDelete] = useState<any>(null)
 
   // Show execution time toast when results are received
   useEffect(() => {
@@ -359,7 +361,11 @@ export function QueryResults({ results, isExecuting, onRefresh, onSaveTable, onE
       }
     }
 
-    const deleteRow = async (row: any) => {
+    const deleteRow = (row: any) => {
+      setRowToDelete({ row, resultIndex: resultIndex })
+    }
+
+    const confirmDeleteRow = async (row: any) => {
       if (!selectedServer) {
         toast({ title: "No server selected", variant: "destructive" })
         return
@@ -393,11 +399,13 @@ export function QueryResults({ results, isExecuting, onRefresh, onSaveTable, onE
         toast({ title: "Row deleted" })
         cancelEditRow()
         onRefresh && onRefresh()
+        setRowToDelete(null)
       } catch (e: any) {
         toast({ title: "Delete failed", description: e?.message || String(e), variant: "destructive" })
       } finally {
         setIsRowSaving(false)
       }
+    }
     }
 
     return (
@@ -789,6 +797,15 @@ export function QueryResults({ results, isExecuting, onRefresh, onSaveTable, onE
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DestructiveQueryDialog
+        open={!!rowToDelete}
+        action="DELETE"
+        objectType="row"
+        onConfirm={() => rowToDelete && confirmDeleteRow(rowToDelete.row)}
+        onCancel={() => setRowToDelete(null)}
+        isLoading={isRowSaving}
+      />
     </>
   )
 }
