@@ -23,10 +23,12 @@ import { QueryHistoryDialog } from "@/components/query-history-dialog"
 import { QueryTemplatesDialog } from "@/components/query-templates-dialog"
 import { ConnectionStatsDialog } from "@/components/connection-stats-dialog"
 import { SaveTableDialog } from "@/components/save-table-dialog"
+import { DestructiveQueryDialog } from "@/components/destructive-query-dialog"
 import { useServerStorage } from "@/hooks/use-server-storage"
 import { useToast } from "@/hooks/use-toast"
 import { useQueryTabs } from "@/hooks/use-query-tabs"
 import { useQueryHistory } from "@/hooks/use-query-history"
+import { useDestructiveQueryConfirmation } from "@/hooks/use-destructive-query-confirmation"
 import type { QueryResult, QueryExecution } from "@/types/query"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 
@@ -36,8 +38,10 @@ export function QueryTool() {
   const connectedServers = servers.filter((server) => server.connected)
   const { getActiveTab, updateTab } = useQueryTabs()
   const { addToHistory } = useQueryHistory()
+  const { pendingQuery, showConfirmation, clearPendingQuery } = useDestructiveQueryConfirmation()
 
   const [selectedServerId, setSelectedServerId] = useState<string>("")
+  const [pendingQueryToExecute, setPendingQueryToExecute] = useState<string | null>(null)
   
   // Auto-select server from localStorage, favorite server, or first connected server
   useEffect(() => {
@@ -147,7 +151,7 @@ export function QueryTool() {
     }
   }, [selectedServer])
 
-  const executeQuery = async (queryText?: string, isRetry = false) => {
+  const _executeQueryInternal = async (query: string, isRetry = false) => {
     if (!selectedServer) {
       toast({
         title: "⚠️ No Server Selected",
@@ -175,18 +179,7 @@ export function QueryTool() {
       return
     }
 
-    const query = (queryText ?? currentEditorContent ?? activeTab.content ?? "") as string
-    if (!query.trim()) {
-      toast({
-        title: "Empty Query",
-        description: "Please enter a SQL query to execute.",
-        variant: "destructive",
-      })
-      return
-    }
-
     setIsExecuting(true)
-    // Clear results for current tab only
     setQueryResults(prev => ({
       ...prev,
       [activeTab.id]: []
@@ -213,7 +206,6 @@ export function QueryTool() {
       })
       const data = await res.json();
       
-      // Check for errors in the response (even with 200 status)
       if (data.error) {
         if (typeof data.error === 'object') {
           const dbError = data.error;
@@ -224,7 +216,6 @@ export function QueryTool() {
       }
       
       if (!res.ok) {
-        // Handle HTTP errors
         if (data.error && typeof data.error === 'object') {
           const dbError = data.error;
           throw new Error(`${dbError.message}${dbError.code ? ` (Code: ${dbError.code})` : ''}`);
@@ -233,9 +224,7 @@ export function QueryTool() {
       }
       let results: QueryResult[] = []
       
-      // Handle new API response format
       if (data.multipleResults) {
-        // Multiple statements response
         results = data.results.map((result: any) => ({
           type: result.command === 'SELECT' ? 'select' : result.command ? result.command.toLowerCase() : 'success',
           columns: result.fields ? result.fields.map((f: any) => f.name) : [],
@@ -248,7 +237,6 @@ export function QueryTool() {
           cacheHits: result.cacheHits,
         }))
       } else {
-        // Single statement response
         results = [
           {
             type: data.command === 'SELECT' ? 'select' : data.command ? data.command.toLowerCase() : 'success',
@@ -264,13 +252,11 @@ export function QueryTool() {
         ]
       }
 
-      // Store results for current tab only
       setQueryResults(prev => ({
         ...prev,
         [activeTab.id]: results
       }))
 
-      // Add to history
       const totalExecutionTime = data.totalExecutionTime || results.reduce((sum, r) => sum + r.executionTime, 0)
       const execution: QueryExecution = {
         id: crypto.randomUUID(),
@@ -283,20 +269,17 @@ export function QueryTool() {
       }
       addToHistory(execution)
     } catch (error) {
-      // SSL-related error check
       if (error instanceof Error && error.message.includes("no pg_hba.conf entry") && !isRetry) {
         toast({
           title: "SSL Required",
           description: "The server may require an SSL connection. Automatically retrying with SSL enabled.",
         })
         
-        // Update server settings to use SSL
         const updatedServer = { ...selectedServer, sslMode: "require" as const };
         updateServer(selectedServer.id, updatedServer);
         
-        // Retry query with SSL
-        executeQuery(query, true);
-        return; // Exit to avoid double error handling
+        _executeQueryInternal(query, true);
+        return;
       }
 
       if (error instanceof Error && error.message === "Query cancelled") {
@@ -312,10 +295,8 @@ export function QueryTool() {
           ]
         }))
       } else {
-        // Format database errors to be more user-friendly
         let errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
         
-        // Common database error patterns
         if (errorMessage.includes("column") && errorMessage.includes("does not exist")) {
           errorMessage = `Column not found: ${errorMessage.split('"')[1] || 'unknown column'}`
         } else if (errorMessage.includes("relation") && errorMessage.includes("does not exist")) {
@@ -340,6 +321,39 @@ export function QueryTool() {
         setIsExecuting(false)
         setExecutionController(null)
     }
+  }
+
+  const executeQuery = async (queryText?: string) => {
+    const query = (queryText ?? currentEditorContent ?? activeTab?.content ?? "") as string
+    if (!query.trim()) {
+      toast({
+        title: "Empty Query",
+        description: "Please enter a SQL query to execute.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const destructiveInfo = showConfirmation(query)
+    if (destructiveInfo?.isDestructive) {
+      setPendingQueryToExecute(query)
+      return
+    }
+
+    await _executeQueryInternal(query)
+  }
+
+  const handleDestructiveConfirm = async () => {
+    if (pendingQueryToExecute) {
+      await _executeQueryInternal(pendingQueryToExecute)
+    }
+    clearPendingQuery()
+    setPendingQueryToExecute(null)
+  }
+
+  const handleDestructiveCancel = () => {
+    clearPendingQuery()
+    setPendingQueryToExecute(null)
   }
 
   const cancelQuery = () => {
@@ -1096,6 +1110,16 @@ export function QueryTool() {
       <QueryHistoryDialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog} />
       <QueryTemplatesDialog open={showTemplatesDialog} onOpenChange={setShowTemplatesDialog} />
       <ConnectionStatsDialog open={showConnectionStats} onOpenChange={setShowConnectionStats} />
+      
+      <DestructiveQueryDialog 
+        open={!!pendingQuery}
+        action={pendingQuery?.action}
+        objectType={pendingQuery?.objectType}
+        message={pendingQuery?.message}
+        onConfirm={handleDestructiveConfirm}
+        onCancel={handleDestructiveCancel}
+        isLoading={isExecuting}
+      />
       
       <SaveTableDialog 
         open={showSaveTableDialog} 
