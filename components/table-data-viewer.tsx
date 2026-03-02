@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { DestructiveQueryDialog } from "@/components/destructive-query-dialog"
 import { useServerStorage } from "@/hooks/use-server-storage"
 import type { SelectedTable, TableData } from "@/types/database"
 import { format } from "date-fns"
@@ -122,6 +123,7 @@ export const TableDataViewer = forwardRef<TableDataViewerHandle, TableDataViewer
   const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null)
   const [editedRowValues, setEditedRowValues] = useState<Record<string, any>>({})
   const [isRowSaving, setIsRowSaving] = useState(false)
+  const [rowToDelete, setRowToDelete] = useState<any>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -290,9 +292,13 @@ export const TableDataViewer = forwardRef<TableDataViewerHandle, TableDataViewer
     }
   }
 
-  const deleteRow = async (row: any) => {
-    if (!selectedServer || !tableData) return
-    const where = buildWhereClause(row)
+  const deleteRow = (row: any) => {
+    setRowToDelete(row)
+  }
+
+  const confirmDeleteRow = async () => {
+    if (!selectedServer || !tableData || !rowToDelete) return
+    const where = buildWhereClause(rowToDelete)
     const sql = `DELETE FROM "${selectedTable.schema}"."${selectedTable.table}" WHERE ${where}`
     try {
       setIsRowSaving(true)
@@ -313,6 +319,7 @@ export const TableDataViewer = forwardRef<TableDataViewerHandle, TableDataViewer
       if (!res.ok || (data && data.error)) throw new Error(data?.error || 'Delete failed')
       await loadTableData()
       toast({ title: 'Row deleted' })
+      setRowToDelete(null)
     } catch (e: any) {
       toast({ title: 'Delete failed', description: e?.message || 'Could not delete row', variant: 'destructive' })
     } finally {
@@ -656,6 +663,15 @@ export const TableDataViewer = forwardRef<TableDataViewerHandle, TableDataViewer
           </Button>
         </div>
       </div>
+      
+      <DestructiveQueryDialog
+        open={!!rowToDelete}
+        action="DELETE"
+        objectType="row"
+        onConfirm={confirmDeleteRow}
+        onCancel={() => setRowToDelete(null)}
+        isLoading={isRowSaving}
+      />
     </div>
   )
 })
