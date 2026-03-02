@@ -1,19 +1,53 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { ShieldCheckIcon, KeyIcon, PaintBrushIcon, ArrowLeftIcon, ArrowRightIcon, LockClosedIcon, CircleStackIcon, ExclamationTriangleIcon, StarIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from "@heroicons/react/24/outline"
+import type React from "react"
+import { useState, useRef, useEffect } from "react"
+import { ShieldCheckIcon, KeyIcon, PaintBrushIcon, ArrowLeftIcon, ArrowRightIcon, LockClosedIcon, CircleStackIcon, ExclamationTriangleIcon, SunIcon, MoonIcon, ComputerDesktopIcon, StarIcon } from "@heroicons/react/24/outline"
 import { GitFork } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import EncryptionService from "@/utils/encryption"
 import { useSecurity } from "@/contexts/security-context"
-import { DotPattern } from "@/components/magicui/dot-pattern"
 import { triggerConfetti } from "@/components/magicui/confetti"
+
+const GitHubIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 16 16"
+    aria-hidden="true"
+    {...props}
+  >
+    <path
+      fill="currentColor"
+      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8"
+    />
+  </svg>
+)
+
+const featureSlides = [
+  {
+    image: "/Images/query-tool.png",
+    title: "A blazing-fast editor built for every query",
+    subtitle: "",
+  },
+  {
+    image: "/Images/table-viewer.png",
+    title: "Navigate tables, schemas, and relationships",
+    subtitle: "",
+  },
+  {
+    image: "/Images/password.png",
+    title: "AES-256 encryption for every connection",
+    subtitle: "",
+  },
+  {
+    image: "/Images/save.png",
+    title: "Export, import, and pick up where you left off",
+    subtitle: "",
+  },
+]
 
 export function FirstTimeSetup() {
   const [currentStep, setCurrentStep] = useState(0)
@@ -28,7 +62,14 @@ export function FirstTimeSetup() {
   const [error, setError] = useState("")
   const [importPassword, setImportPassword] = useState("")
   const [isImporting, setIsImporting] = useState(false)
+  const [activeSlide, setActiveSlide] = useState(0)
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % featureSlides.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
 
   const { setupPin, setTheme } = useSecurity()
 
@@ -123,7 +164,7 @@ export function FirstTimeSetup() {
   const steps = [
     {
       title: "",
-      description: "Let's set up your secure database management environment",
+      description: "Poge is a lightweight PostgreSQL database interaction tool that runs entirely in your browser, built for developers who just want to check their tables, run quick queries, and get back to work.",
       icon: ShieldCheckIcon,
     },
     {
@@ -269,30 +310,16 @@ export function FirstTimeSetup() {
       case 0:
         return (
           <div className="space-y-6">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-950/50 rounded-full flex items-center justify-center">
               <ShieldCheckIcon className="h-8 w-8 text-green-600" />
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold">Welcome to Poge</h2>
               <p className="text-base text-muted-foreground">
-                Manage PostgreSQL from your browser.
+                Poge is a lightweight PostgreSQL database interaction tool that runs entirely in your browser, for developers who just want to check their tables, run queries, and get back to work.
               </p>
             </div>
-            <div className="grid gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                <span className="text-sm">Connect to multiple databases.</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                <span className="text-sm">Run SQL with results, history, and saved templates</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                <span className="text-sm">Visually create and edit tables, views, and schema objects</span>
-              </div>
-            </div>
 
-            {/* Subtle import option */}
             <div className="pt-4 border-t border-dashed border-muted-foreground/20">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>Have a backup?</span>
@@ -335,7 +362,7 @@ export function FirstTimeSetup() {
               </div>
               <h2 className="text-2xl font-bold">Create Your Security PIN</h2>
               <p className="text-base text-muted-foreground">
-                This PIN will encrypt all your data and is required every time you access the application.
+                This PIN will encrypt all your data and is required to access the application.
               </p>
             </div>
 
@@ -466,202 +493,233 @@ export function FirstTimeSetup() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center">
+    <div className="min-h-screen relative flex flex-col lg:flex-row">
 
-      {/* Background */}
-      <div className="absolute inset-0">
-        <DotPattern width={20} height={20} cr={1} className="text-green-200/30" glow={true} />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 mx-auto max-w-6xl px-7 lg:px-11 py-9 lg:py-12 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch">
-          {/* Left column - content */}
-          <div className="flex flex-col">
-
-            <Card className="bg-background/80 backdrop-blur-sm border-border/50 flex-1 rounded-none lg:rounded-l-xl lg:rounded-r-none lg:border-r-0">
-              <CardHeader className="px-6 py-7 lg:px-8 lg:py-8">
-                <div className="flex items-center gap-2 mb-4">
-                  {steps.map((step, index) => (
-                    <div key={index} className="flex items-center">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${index <= currentStep ? "bg-green-600 text-white" : "bg-muted text-muted-foreground"
-                          }`}
-                      >
-                        {index < currentStep ? "✓" : index + 1}
+      {/* Absolute positioned encryption note */}
+      <div className="absolute top-6 right-6 z-50">
+        <TooltipProvider delayDuration={300} skipDelayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-help underline decoration-dotted">
+                <LockClosedIcon className="h-3.5 w-3.5" />
+                AES-256 Encrypted
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="bottom"
+              align="end"
+              className="p-0 border-0 bg-transparent shadow-none"
+              sideOffset={8}
+            >
+              <div className="bg-background rounded-lg border border-border w-[380px] shadow-2xl">
+                <div className="space-y-0">
+                  <div className="border-b border-dashed border-muted-foreground/30 px-4 py-3">
+                    <div className="flex gap-2.5">
+                      <LockClosedIcon className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold">Encryption Algorithm</h4>
+                        <p className="text-xs text-muted-foreground">AES-256-GCM with 256-bit keys</p>
                       </div>
-                      {index < steps.length - 1 && (
-                        <div className={`w-8 h-0.5 mx-2 ${index < currentStep ? "bg-green-600" : "bg-muted"}`} />
-                      )}
                     </div>
-                  ))}
-                </div>
-                {/* Removed duplicate step title to avoid repeating the heading shown in the content area */}
-              </CardHeader>
-              <CardContent className="space-y-7 px-7 pb-8 lg:px-8 lg:pb-9">
-                {renderStepContent()}
-
-                <div className="flex justify-between pt-6">
-                  <Button
-                    variant="outline"
-                    onClick={handleBack}
-                    disabled={currentStep === 0 || currentStep === steps.length - 1}
-                  >
-                    <ArrowLeftIcon className="h-4 w-4 mr-1" />
-                    Back
-                  </Button>
-
-                  {currentStep < steps.length - 1 ? (
-                    <Button
-                      onClick={handleNext}
-                      disabled={loading || (currentStep === 1 && (!pin || !confirmPin))}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      {loading ? "Setting up..." : "Next"}
-                      <ArrowRightIcon className="h-4 w-4 ml-1" />
-                    </Button>
-                  ) : (
-                    <Button onClick={handleStartUsingApp} className="bg-green-600 hover:bg-green-700">
-                      Start Using App
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-
-          </div>
-
-          {/* Right column - gradient with logo */}
-          <Card className="bg-muted/30 border-border/50 overflow-hidden rounded-none lg:rounded-r-xl lg:rounded-l-none lg:border-l-0">
-            <CardContent className="p-0 h-[400px] md:h-full">
-              <div className="relative h-full w-full">
-                {/* Base gradient - balanced dark */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-800 via-emerald-900 to-emerald-950" />
-                {/* Radial accents for depth */}
-                <div className="absolute -top-16 -left-16 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl" />
-                <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-emerald-950/45 blur-3xl" />
-
-                {/* Centered logo and headline */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-6">
-                  <div className="flex items-center gap-4">
-                    <Image
-                      src="/Pogo%20Brand%20mark.png"
-                      alt="Poge logo"
-                      width={96}
-                      height={96}
-                      className="drop-shadow"
-                      priority
-                    />
-                    <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                      Poge
-                    </h1>
                   </div>
-                  <h2 className="mt-6 text-xl md:text-2xl font-normal leading-snug max-w-[70%] mx-auto">
-                    Your journey to better Postgres management starts here.
-                  </h2>
-
-                  <div className="flex items-center justify-center gap-3 mt-6">
-                    <Button
-                      variant="outline"
-                      className="gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
-                      onClick={() => window.open("https://github.com/dev-hari-prasad/poge", "_blank")}
-                    >
-                      <StarIcon className="h-4 w-4" />
-                      Star on GitHub
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
-                      onClick={() => window.open("https://github.com/dev-hari-prasad/poge/fork", "_blank")}
-                    >
-                      <GitFork className="h-4 w-4" />
-                      Fork on GitHub
-                    </Button>
+                  <div className="border-b border-dashed border-muted-foreground/30 px-4 py-3">
+                    <div className="flex gap-2.5">
+                      <CircleStackIcon className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold">Local Storage</h4>
+                        <p className="text-xs text-muted-foreground">Encrypted locally, never transmitted</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-
-                {/* Bottom-centered encryption note */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-                  <TooltipProvider delayDuration={300} skipDelayDuration={100}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button className="px-3 py-1 rounded-full text-[11px] md:text-xs text-white bg-emerald-950/50 border border-white/10 shadow-sm backdrop-blur-sm whitespace-nowrap hover:bg-emerald-950/70 transition-colors cursor-help underline decoration-dotted">
-                          All data is stored locally with AES-256 military grade encryption
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="top"
-                        align="center"
-                        className="p-0 border-0 bg-transparent shadow-none"
-                        sideOffset={10}
-                      >
-                        <div className="bg-background rounded-xl border border-border max-w-4xl w-[500px] shadow-2xl">
-
-
-                          <div className="space-y-0">
-                            {/* Encryption Algorithm */}
-                            <div className="border-b border-dashed border-muted-foreground/30 p-6">
-                              <div className="flex gap-3">
-                                <LockClosedIcon className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
-                                <div>
-                                  <h4 className="text-lg font-semibold">Encryption Algorithm</h4>
-                                  <p className="text-sm text-muted-foreground leading-relaxed">
-                                    AES-256-GCM encryption with 256-bit keys
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Local Storage */}
-                            <div className="border-b border-dashed border-muted-foreground/30 p-6">
-                              <div className="flex gap-3">
-                                <CircleStackIcon className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
-                                <div>
-                                  <h4 className="text-lg font-semibold">Local Storage</h4>
-                                  <p className="text-sm text-muted-foreground leading-relaxed">
-                                    All data encrypted locally, never transmitted to servers
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* PIN Security */}
-                            <div className="border-b border-dashed border-muted-foreground/30 p-6">
-                              <div className="flex gap-3">
-                                <ShieldCheckIcon className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
-                                <div>
-                                  <h4 className="text-lg font-semibold">PIN Security</h4>
-                                  <p className="text-sm text-muted-foreground leading-relaxed">
-                                    6-digit PIN with 1,000,000 combinations × 100,000 iterations
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Threat Level */}
-                            <div className="p-6">
-                              <div className="flex gap-3">
-                                <ExclamationTriangleIcon className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
-                                <div>
-                                  <h4 className="text-lg font-semibold">Threat Level</h4>
-                                  <p className="text-sm text-muted-foreground leading-relaxed">
-                                    Breaking encryption takes longer than the universe's age.
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <div className="border-b border-dashed border-muted-foreground/30 px-4 py-3">
+                    <div className="flex gap-2.5">
+                      <ShieldCheckIcon className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold">PIN Security</h4>
+                        <p className="text-xs text-muted-foreground">1,000,000 combinations x 100,000 iterations</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="px-4 py-3">
+                    <div className="flex gap-2.5">
+                      <ExclamationTriangleIcon className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold">Threat Level</h4>
+                        <p className="text-xs text-muted-foreground">Breaking takes longer than the universe&apos;s age</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      {/* Left side - Onboarding steps */}
+      <div className="w-full lg:w-[40%] flex flex-col min-h-screen">
+        {/* Logo */}
+        <div className="p-6 lg:p-8 flex items-center">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/Pogo%20Brand%20mark.png"
+              alt="Poge logo"
+              width={28}
+              height={28}
+              priority
+            />
+            <span className="text-lg font-semibold">Poge</span>
+          </div>
+        </div>
+
+        {/* Step content centered */}
+        <div className="flex-1 flex items-center justify-center px-6 lg:px-12 pb-8">
+          <div className="w-full max-w-md mb-22">
+            {/* Step indicators */}
+            <div className="flex items-center gap-2 mb-8">
+              {steps.map((step, index) => (
+                <div key={index} className="flex items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                      index <= currentStep ? "bg-green-600 text-white" : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {index < currentStep ? "✓" : index + 1}
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className={`w-8 h-0.5 mx-2 ${index < currentStep ? "bg-green-600" : "bg-muted"}`} />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {renderStepContent()}
+
+            <div className="flex justify-between pt-6">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={currentStep === 0 || currentStep === steps.length - 1}
+              >
+                <ArrowLeftIcon className="h-4 w-4 mr-1" />
+                Back
+              </Button>
+
+              {currentStep < steps.length - 1 ? (
+                <Button
+                  onClick={handleNext}
+                  disabled={loading || (currentStep === 1 && (!pin || !confirmPin))}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {loading ? "Setting up..." : "Next"}
+                  <ArrowRightIcon className="h-4 w-4 ml-1" />
+                </Button>
+              ) : (
+                <Button onClick={handleStartUsingApp} className="bg-green-600 hover:bg-green-700">
+                  Start Using App
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Right side - Feature showcase */}
+      <div className="hidden lg:flex lg:w-[60%] items-center justify-end bg-background">
+        <div className="w-[95%] max-w-[1000px] p-6 pr-5 bg-muted/30 rounded-l-2xl rounded-r-none border-y border-l border-border/50 border-r-0">
+          {/* App window */}
+          <div className="flex flex-col w-full h-[520px] max-h-[580px] rounded-xl overflow-hidden border border-border/70 bg-[#1e1e1e]">
+          {/* Title bar */}
+          <div className="flex items-center justify-between h-9 px-4 shrink-0 bg-[#1c1c1c] border-b border-white/10">
+            <div className="flex gap-2">
+              <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+              <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
+              <span className="w-3 h-3 rounded-full bg-[#27c93f]" />
+            </div>
+            <div className="flex items-center gap-3 pr-1">
+              <button
+                onClick={() => window.open("https://github.com/dev-hari-prasad/poge", "_blank")}
+                className="flex items-center gap-1.5 text-[11px] font-medium text-white/60 hover:text-white transition-colors"
+              >
+                <GitHubIcon className="h-3.5 w-3.5" />
+                Star on GitHub
+              </button>
+              <button
+                onClick={() => window.open("https://github.com/dev-hari-prasad/poge/fork", "_blank")}
+                className="flex items-center gap-1.5 text-[11px] font-medium text-white/60 hover:text-white transition-colors"
+              >
+                <GitFork className="h-3.5 w-3.5" />
+                Fork on GitHub
+              </button>
+            </div>
+          </div>
+          {/* Screen */}
+          <div className="relative flex-1 overflow-hidden bg-[#1e1e1e]">
+            {featureSlides.map((slide, index) => (
+              <div
+                key={index}
+                className="absolute inset-0"
+                style={{
+                  opacity: index === activeSlide ? 1 : 0,
+                  transform: `scale(${index === activeSlide ? 1 : 1.04})`,
+                  transition:
+                    "opacity 900ms cubic-bezier(0.4, 0, 0.2, 1), transform 900ms cubic-bezier(0.4, 0, 0.2, 1)",
+                  zIndex: index === activeSlide ? 2 : 1,
+                }}
+              >
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  className={`object-cover ${slide.image.includes("password") || slide.image.includes("save") ? "object-center" : "object-left"}`}
+                  priority={index === 0}
+                  sizes="(min-width: 1024px) 55vw, 0vw"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(2,26,19,0.95) 0%, rgba(2,26,19,0.55) 20%, rgba(2,26,19,0.08) 40%, transparent 100%)",
+                  }}
+                />
+                <div
+                  className="absolute bottom-0 left-0 right-0 p-6 pb-5 pr-14"
+                  style={{
+                    opacity: index === activeSlide ? 1 : 0,
+                    transform: `translateY(${index === activeSlide ? 0 : 10}px)`,
+                    transition:
+                      "opacity 650ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, transform 650ms cubic-bezier(0.4, 0, 0.2, 1) 200ms",
+                  }}
+                >
+                  <h3 className="text-[22px] font-semibold text-white tracking-tight leading-tight">
+                    {slide.title}
+                  </h3>
+                  <p className="text-[13px] text-white/50 mt-1.5 font-medium tracking-wide">
+                    {slide.subtitle}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {/* Countdown ring */}
+            <div className="absolute bottom-4 right-4 z-10">
+              <svg className="w-6 h-6 -rotate-90" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" fill="none" stroke="white" strokeWidth="1.5" opacity="0.1" />
+                <circle
+                  key={activeSlide}
+                  cx="12" cy="12" r="10"
+                  fill="none" stroke="white" strokeWidth="1.5"
+                  strokeDasharray="62.832"
+                  strokeLinecap="round"
+                  opacity="0.4"
+                  className="slide-countdown"
+                />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }
