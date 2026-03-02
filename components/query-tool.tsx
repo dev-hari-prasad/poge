@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
+import { motion } from "motion/react"
 import { PlayIcon, BookmarkIcon, FolderOpenIcon, ClockIcon, CircleStackIcon, ArrowPathIcon, PauseIcon, StopIcon, BoltIcon, TrashIcon, ChartBarIcon, EllipsisVerticalIcon, LockClosedIcon, LockOpenIcon, PencilIcon, PlusIcon, Squares2X2Icon, ViewColumnsIcon, ArrowDownTrayIcon, ArrowsPointingOutIcon, XCircleIcon, CheckCircleIcon } from "@heroicons/react/24/outline"
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -27,6 +28,7 @@ import { useServerStorage } from "@/hooks/use-server-storage"
 import { useToast } from "@/hooks/use-toast"
 import { useQueryTabs } from "@/hooks/use-query-tabs"
 import { useQueryHistory } from "@/hooks/use-query-history"
+import { useKeyboardShortcuts, isMacOS, type KeyboardShortcut } from "@/hooks/use-keyboard-shortcuts"
 import type { QueryResult, QueryExecution } from "@/types/query"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 
@@ -95,6 +97,7 @@ export function QueryTool() {
     }
   })
   const [expandedResult, setExpandedResult] = useState<{open: boolean, result: QueryResult | null, index: number}>({open: false, result: null, index: 0})
+  const [showShortcutHint, setShowShortcutHint] = useState(false)
   
   // Force side-by-side (alt) as default while toggle is hidden
   useEffect(() => {
@@ -118,6 +121,26 @@ export function QueryTool() {
         localStorage.removeItem(`react-resizable-panels:collapsed:${id}`)
       })
     } catch {}
+  }, [])
+
+  useEffect(() => {
+    let timeoutId: number | undefined
+    try {
+      const key = "postgres-manager-query-tool-visits"
+      const raw = localStorage.getItem(key)
+      const visits = raw ? parseInt(raw, 10) || 0 : 0
+      const next = visits + 1
+      localStorage.setItem(key, String(next))
+      if (visits < 3) {
+        setShowShortcutHint(true)
+        timeoutId = window.setTimeout(() => setShowShortcutHint(false), 6000)
+      }
+    } catch {}
+    return () => {
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId)
+      }
+    }
   }, [])
 
   // Rely on PanelGroup autoSaveId for persistence per layout
@@ -361,6 +384,11 @@ export function QueryTool() {
       executeQuery()
     }
   }
+
+  const shortcuts: KeyboardShortcut[] = [
+    { id: "run-query", keys: isMacOS ? ["meta", "Enter"] : ["ctrl", "Enter"], label: isMacOS ? "⌘ + Enter" : "Ctrl + Enter", handler: () => executeQuery() },
+  ]
+  useKeyboardShortcuts(shortcuts)
 
   
 
@@ -806,6 +834,46 @@ export function QueryTool() {
                 </SelectContent>
               </Select>
             )}
+
+            <TooltipProvider delayDuration={0}>
+              <Tooltip open={showShortcutHint} onOpenChange={setShowShortcutHint}>
+                <TooltipTrigger asChild>
+                  <motion.span
+                    className="flex items-center justify-center h-7 w-7 rounded bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted cursor-default select-none font-mono text-sm border"
+                    animate={showShortcutHint ? { x: [-2, 2, -2, 2, 0] } : { x: 0 }}
+                    transition={showShortcutHint ? { duration: 0.5, ease: "easeInOut" } : { duration: 0.2 }}
+                  >
+                    <svg
+                      viewBox="0 0 32 32"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      className="h-3.5 w-3.5"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M9 13h-.007m0 0A4 4 0 1113 9v14a4 4 0 11-4-4h14a4 4 0 11-4 4V9a4 4 0 114 4H8.993z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </motion.span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="start" className="max-w-xs">
+                  <p className="flex flex-row justify-between items-center gap-2 text-xs font-semibold mb-2">
+                    <span>Shortcuts</span>
+                    <span className="inline-flex items-center rounded-full border border-primary/60 bg-primary/10 px-1.5 py-0.3 text-[10px] font-medium text-primary shadow-sm">
+                      New
+                    </span>
+                  </p>
+                  {shortcuts.map((s) => (
+                    <div key={s.id} className="flex items-center justify-between gap-4 text-xs py-0.5">
+                      <span className="text-muted-foreground">Run Query</span>
+                      <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-[10px]">{s.label}</kbd>
+                    </div>
+                  ))}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 

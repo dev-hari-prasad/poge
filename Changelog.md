@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.5 - 2026-03-02
+
+- Introduced keyboard shortcuts for running queries with a modular setup to allow adding more shortcuts in the future.
+- Minor fixes and improvements in the settings UI.
+
+# Changelog
+
 ## v0.2.1
 - **Fixed Query Tool CRUD Actions**: Add, edit, delete, and download buttons now work properly - they were using stale query content.
 - **Improved Edit Table Dialog**: Fixed SQL errors with empty fields, made dialog wider for better visibility, and adjusted positioning.
