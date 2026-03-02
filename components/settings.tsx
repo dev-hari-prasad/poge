@@ -318,7 +318,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
         <Cog6ToothIcon className="h-6 w-6 text-muted-foreground" />
         <h2 className="text-xl font-semibold">General Settings</h2>
       </div>
-      <Card>
+      <Card className="dark:bg-muted/60 dark:border">
         <CardContent className="p-6">
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
@@ -398,7 +398,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
         <ShieldCheckIcon className="h-6 w-6 text-muted-foreground" />
         <h2 className="text-xl font-semibold">Security Settings</h2>
       </div>
-      <Card>
+      <Card className="dark:bg-muted/60 dark:border-muted-800">
         <CardContent className="p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -466,7 +466,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
             </div>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg mt-6">
+          {/* <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg mt-6">
             <h4 className="font-medium text-slate-800 dark:text-slate-200 mb-2">Security Status</h4>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
@@ -486,7 +486,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
                 <span>Lock on refresh: {lockOnRefresh ? "Enabled" : "Disabled"}</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>
@@ -498,7 +498,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
         <PaintBrushIcon className="h-6 w-6 text-muted-foreground" />
         <h2 className="text-xl font-semibold">Theme & Apperance</h2>
       </div>
-      <Card>
+      <Card className="dark:bg-muted/60 dark:border-muted-800">
         <CardContent className="p-6">
           <div className="space-y-6">
             <div>
@@ -523,32 +523,6 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
               </div>
             </div>
 
-            <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
-              <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">Current Theme</h4>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-white dark:bg-gray-800 flex items-center gap-1">
-                  {theme === "light" ? (
-                    <>
-                      <SunIcon className="h-3 w-3" />
-                      Light Mode
-                    </>
-                  ) : theme === "dark" ? (
-                    <>
-                      <MoonIcon className="h-3 w-3" />
-                      Dark Mode
-                    </>
-                  ) : (
-                    <>
-                      <ComputerDesktopIcon className="h-3 w-3" />
-                      System Mode
-                    </>
-                  )}
-                </Badge>
-                <span className="text-sm text-green-700 dark:text-green-300">
-                  Theme preference is encrypted and synced across sessions
-                </span>
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -561,7 +535,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
         <CircleStackIcon className="h-6 w-6 text-muted-foreground" />
         <h2 className="text-xl font-semibold">Data Management</h2>
       </div>
-      <Card>
+      <Card className="dark:bg-muted/60 dark:border-muted-800">
         <CardContent className="p-6">
           <div className="space-y-4">
             {/* Export and Import All Data Group */}
@@ -689,7 +663,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
         <InformationCircleIcon className="h-6 w-6 text-muted-foreground" />
         <h2 className="text-xl font-semibold">About Poge</h2>
       </div>
-      <Card>
+      <Card className="dark:bg-muted/60 dark:border-muted-800">
         <CardContent className="p-6">
           <div className="text-center space-y-4">
             <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
@@ -734,7 +708,7 @@ export function Settings({ initialTab = "general" }: SettingsProps) {
 
           <div className="text-center pt-4 border-t mt-6">
             <div className="flex items-center justify-center gap-3 px-8">
-              <Badge className="border">Version 0.3</Badge>
+              <Badge className="border">Version 0.2.5</Badge>
               <Badge className="border">MIT License</Badge>
               <Badge className="border">Open Source</Badge>
 
