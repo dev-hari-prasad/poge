@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.5 - 2026-03-02
+## 0.2.5
 
 - Introduced keyboard shortcuts for running queries with a modular setup to allow adding more shortcuts in the future.
 - Minor fixes and improvements in the settings UI.
