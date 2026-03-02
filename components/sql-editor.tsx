@@ -23,6 +23,7 @@ interface SQLEditorProps {
   onSelect?: () => void
   onMouseUp?: () => void
   onKeyUp?: () => void
+  onScrollChange?: (scrollTop: number) => void
   placeholder?: string
   className?: string
   style?: React.CSSProperties
@@ -34,6 +35,7 @@ export function SQLEditor({
   onSelect,
   onMouseUp,
   onKeyUp,
+  onScrollChange,
   placeholder = "-- Write your SQL query here",
   className,
   style
@@ -101,6 +103,7 @@ export function SQLEditor({
     if (textareaRef.current && highlightRef.current) {
       highlightRef.current.scrollTop = textareaRef.current.scrollTop
       highlightRef.current.scrollLeft = textareaRef.current.scrollLeft
+      onScrollChange?.(textareaRef.current.scrollTop)
     }
   }
 
@@ -168,6 +171,8 @@ export function SQLEditor({
         ref={highlightRef}
         className="absolute inset-0 m-0 p-0 overflow-auto font-mono text-sm bg-transparent border-0 rounded-none focus:outline-none hljs"
         style={{
+          paddingTop: 0,
+          paddingBottom: 0,
           paddingLeft: "8px",
           paddingRight: "8px",
           whiteSpace: "pre-wrap",
@@ -198,6 +203,8 @@ export function SQLEditor({
         )}
         placeholder={placeholder}
         style={{
+          paddingTop: 0,
+          paddingBottom: 0,
           paddingLeft: "8px",
           paddingRight: "8px",
           whiteSpace: "pre-wrap",

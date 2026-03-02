@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Plus, X, Lock, Unlock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,6 +24,29 @@ export function QueryEditor({ onSelectionChange, onContentChange }: QueryEditorP
   const lineCount = (activeTab?.content && typeof activeTab.content === 'string' ? activeTab.content.split("\n").length : 1) || 1
   const maxDigits = Math.max(1, Math.floor(Math.log10(lineCount)) + 1)
   const lineNumbersWidth = Math.max(48, maxDigits * 12 + 16) // Minimum 48px, 12px per digit + 16px padding
+
+  const lineNumbersInnerRef = useRef<HTMLDivElement>(null)
+  const editorContainerRef = useRef<HTMLDivElement>(null)
+  const [editorWidth, setEditorWidth] = useState(0)
+
+  useEffect(() => {
+    const el = editorContainerRef.current
+    if (!el) return
+    setEditorWidth(el.clientWidth)
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setEditorWidth(entry.contentRect.width)
+      }
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const handleEditorScroll = useCallback((scrollTop: number) => {
+    if (lineNumbersInnerRef.current) {
+      lineNumbersInnerRef.current.style.transform = `translateY(-${scrollTop}px)`
+    }
+  }, [])
 
   const handleTabRename = (tabId: string, currentName: string) => {
     setEditingTabId(tabId)
@@ -76,7 +99,7 @@ export function QueryEditor({ onSelectionChange, onContentChange }: QueryEditorP
   }
 
   return (
-    <div className="flex flex-col border-b">
+    <div className="flex flex-col border-b h-full">
       {/* Query Tabs */}
       <div className="flex items-center bg-muted/30 border-b">
         <div className="flex items-center overflow-x-auto">
@@ -147,42 +170,67 @@ export function QueryEditor({ onSelectionChange, onContentChange }: QueryEditorP
       </div>
 
       {/* SQL Editor */}
-      <div className="flex-1 relative z-0">
-        <div className="absolute inset-0 flex">
+      <div className="flex-1 relative z-0 min-h-0">
+        <div className="absolute inset-0 flex overflow-hidden">
           {/* Line Numbers */}
           <div 
-            className="bg-muted/20 border-r flex flex-col text-xs text-muted-foreground font-mono"
+            className="bg-muted/20 border-r text-muted-foreground font-mono overflow-hidden"
             style={{ width: `${lineNumbersWidth}px` }}
           >
-                         {(activeTab?.content && typeof activeTab.content === 'string' ? activeTab.content.split("\n") : [""]).map((_, index) => (
-               <div key={index} className="px-2 text-right" style={{ 
-                 lineHeight: "24px",
-                 height: "24px",
-                 display: "flex",
-                 alignItems: "center",
-                 justifyContent: "flex-end"
-               }}>
-                 {index + 1}
-               </div>
-             ))}
+            <div ref={lineNumbersInnerRef} style={{ willChange: "transform" }}>
+              {(activeTab?.content && typeof activeTab.content === 'string' ? activeTab.content.split("\n") : [""]).map((lineContent, index) => (
+                <div key={index} style={{ position: "relative", minHeight: "24px" }}>
+                  <div className="px-2 text-right text-xs" style={{ 
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    lineHeight: "24px",
+                    height: "24px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                  }}>
+                    {index + 1}
+                  </div>
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      visibility: "hidden",
+                      width: editorWidth > 0 ? `${editorWidth}px` : "400px",
+                      whiteSpace: "pre-wrap",
+                      wordWrap: "break-word",
+                      lineHeight: "24px",
+                      fontSize: "0.875rem",
+                      fontFamily: "inherit",
+                      paddingLeft: "8px",
+                      paddingRight: "8px",
+                    }}
+                  >
+                    {lineContent || "\u00A0"}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Editor */}
-          <div className="flex-1 relative">
-            <SQLEditor
-              value={(activeTab?.content && typeof activeTab.content === 'string') ? activeTab.content : ""}
-              onChange={(value) => {
-                updateTab(activeTabId, { content: value })
-                onContentChange?.(value)
-              }}
-              onSelect={onSelectionChange}
-              onMouseUp={onSelectionChange}
-              onKeyUp={onSelectionChange}
-              placeholder="-- Write your SQL query here"
-              style={{
-                minHeight: "300px",
-              }}
-            />
+          <div ref={editorContainerRef} className="flex-1 relative min-h-0">
+            <div className="absolute inset-0">
+              <SQLEditor
+                value={(activeTab?.content && typeof activeTab.content === 'string') ? activeTab.content : ""}
+                onChange={(value) => {
+                  updateTab(activeTabId, { content: value })
+                  onContentChange?.(value)
+                }}
+                onSelect={onSelectionChange}
+                onMouseUp={onSelectionChange}
+                onKeyUp={onSelectionChange}
+                onScrollChange={handleEditorScroll}
+                placeholder="-- Write your SQL query here"
+                style={{ height: "100%", width: "100%" }}
+              />
+            </div>
           </div>
         </div>
       </div>

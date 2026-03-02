@@ -189,6 +189,15 @@
   overflow: auto !important; /* ensure scrollbars are enabled */
 }
 
+@keyframes slide-countdown {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 62.832; }
+}
+
+.slide-countdown {
+  animation: slide-countdown 5s linear forwards;
+}
+
 .animate-ping-once {
   animation: ping-once 1.2s cubic-bezier(0, 0, 0.2, 1);
 }

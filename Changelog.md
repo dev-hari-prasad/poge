@@ -1,11 +1,14 @@
 # Changelog
 
+## 0.3.0
+- Introduced a new first-time setup wizard with demo images and easy setup process.
+- Fixed a bug that caused incorrect scrolling behavior and improper line number alignment in the Query Tool editor.
+
+
 ## 0.2.5
 
 - Introduced keyboard shortcuts for running queries with a modular setup to allow adding more shortcuts in the future.
 - Minor fixes and improvements in the settings UI.
-
-# Changelog
 
 ## v0.2.1
 - **Fixed Query Tool CRUD Actions**: Add, edit, delete, and download buttons now work properly - they were using stale query content.
